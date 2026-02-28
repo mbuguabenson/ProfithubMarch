@@ -62,33 +62,28 @@ const ClientTokensSection = observer(() => {
     };
 
     return (
-        <div className='client-tokens-section'>
-            <div className='section-header'>
-                <h2>Copytrade to Client Accounts</h2>
-                <p>Copy trades to OTHER PEOPLE's accounts by adding their API tokens</p>
-                <p className='sub-hint'>
-                    💡 For copying to your own Real accounts, use "Demo to Real Account" section above
-                </p>
-            </div>
-
-            <div className='add-client-group'>
-                <input
-                    type='password'
-                    placeholder='Enter client API token...'
-                    value={newToken}
-                    onChange={e => setNewToken(e.target.value)}
-                    onKeyPress={e => e.key === 'Enter' && addClient()}
-                />
-                <button onClick={addClient} className='add-button'>
-                    + Add Client
-                </button>
+        <div className='client-tokens-minimal'>
+            <div className='minimal-row add-client-row'>
+                <div className='row-header'>
+                    <h3>Client Accounts</h3>
+                </div>
+                <div className='input-group-minimal'>
+                    <input
+                        type='password'
+                        placeholder='Client API token'
+                        value={newToken}
+                        onChange={e => setNewToken(e.target.value)}
+                        onKeyPress={e => e.key === 'Enter' && addClient()}
+                    />
+                    <button onClick={addClient} className='add-btn-minimal'>
+                        + Add
+                    </button>
+                </div>
             </div>
 
             {clients.length === 0 ? (
-                <div className='empty-state'>
-                    <span className='empty-icon'>📋</span>
-                    <p>No client accounts added yet</p>
-                    <span className='empty-hint'>Add your first client API token above to get started</span>
+                <div className='empty-minimal'>
+                    <p>No client accounts added</p>
                 </div>
             ) : (
                 <div className='clients-grid'>

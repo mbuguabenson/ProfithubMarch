@@ -31,18 +31,19 @@
         display: flex;
         justify-content: space-between;
         align-items: center;
-        padding: 2.4rem;
+        padding: 1.2rem 2.4rem; // Reduced padding
         @extend .glass-card;
+        gap: 1.6rem;
 
         @media (max-width: 1024px) {
             flex-direction: column;
-            gap: 2rem;
+            gap: 1.2rem;
             align-items: stretch;
         }
 
         .header-left {
             display: flex;
-            gap: 2.4rem;
+            gap: 1.6rem; // Reduced gap
             align-items: center;
 
             @media (max-width: 768px) {
@@ -54,14 +55,16 @@
             .market-selector-wrapper,
             .ticks-input-wrapper {
                 display: flex;
-                flex-direction: column;
+                flex-direction: row; // Change to row for compact look
+                align-items: center;
                 gap: 0.8rem;
 
                 label {
-                    font-size: 0.75rem;
+                    font-size: 0.7rem; // Smaller label
                     color: rgba(255, 255, 255, 0.6);
                     text-transform: uppercase;
                     letter-spacing: 1px;
+                    white-space: nowrap;
                 }
 
                 .premium-select,
@@ -69,16 +72,16 @@
                     background: rgba(0, 0, 0, 0.4);
                     border: 1px solid rgba(255, 255, 255, 0.1);
                     border-radius: 8px;
-                    padding: 1rem 1.6rem;
+                    padding: 0.6rem 1rem; // Reduced padding
                     color: #fff;
-                    font-size: 1.2rem;
+                    font-size: 1rem; // Smaller font
                     font-weight: 500;
-                    min-width: 240px;
+                    min-width: 180px; // Reduced min-width
                     transition: all 0.3s ease;
 
                     @media (max-width: 768px) {
                         min-width: 0;
-                        width: 100%;
+                        flex: 1;
                     }
 
                     &:focus {
@@ -96,7 +99,7 @@
 
         .header-right {
             display: flex;
-            gap: 1.6rem;
+            gap: 1.2rem; // Reduced gap
             flex-wrap: wrap;
 
             @media (max-width: 480px) {
@@ -106,40 +109,42 @@
 
             .price-display-card,
             .digit-display-card {
-                padding: 1.6rem 2.4rem;
+                padding: 0.8rem 1.6rem; // Reduced padding
                 background: rgba(0, 0, 0, 0.3);
                 border: 1px solid rgba(255, 255, 255, 0.1);
                 border-radius: 12px;
                 display: flex;
-                flex-direction: column;
+                flex-direction: row; // Change to row for compact look
                 align-items: center;
-                min-width: 140px;
+                gap: 1rem;
+                min-width: 120px;
                 box-shadow: inset 0 0 20px rgba(0,0,0,0.5);
 
                 @media (max-width: 768px) {
-                    padding: 1rem;
+                    padding: 0.8rem;
                     min-width: 0;
                     width: 100%;
+                    justify-content: space-between;
                 }
 
                 .label {
-                    font-size: 0.75rem;
+                    font-size: 0.7rem; // Smaller label
                     color: rgba(255, 255, 255, 0.5);
                     text-transform: uppercase;
                     letter-spacing: 1px;
-                    margin-bottom: 0.8rem;
+                    margin-bottom: 0; // Remove margin for row layout
                 }
 
                 .price-value,
                 .digit-value {
-                    font-size: 2.4rem;
+                    font-size: 1.6rem; // Reduced font size
                     font-weight: 700;
                     font-variant-numeric: tabular-nums;
                     line-height: 1;
                     font-family: 'Roboto Mono', monospace;
 
                     @media (max-width: 768px) {
-                        font-size: 1.75rem;
+                        font-size: 1.4rem;
                     }
                 }
                 

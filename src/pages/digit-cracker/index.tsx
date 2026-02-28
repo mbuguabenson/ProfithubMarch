@@ -173,6 +173,72 @@ const DigitCracker = observer(() => {
                             />
                         </div>
                     )}
+                    {activeStrategy === 'even_odd' && (
+                        <>
+                            <div className='input-field'>
+                                <label>Trigger Condition</label>
+                                <select 
+                                    style={{ width: '100%', padding: '0.8rem', borderRadius: '4px', background: 'rgba(0,0,0,0.2)', color: 'white', border: '1px solid rgba(255,255,255,0.1)' }}
+                                    value={config.trigger_condition || 'EITHER'}
+                                    onChange={(e) => trade_engine.updateConfig(activeStrategy, 'trigger_condition' as keyof TTradeConfig, e.target.value as any)}
+                                >
+                                    <option value="EITHER" style={{ background: '#1f2937' }}>Either (Even/Odd)</option>
+                                    <option value="EVEN" style={{ background: '#1f2937' }}>Even Only</option>
+                                    <option value="ODD" style={{ background: '#1f2937' }}>Odd Only</option>
+                                </select>
+                            </div>
+                            <div className='input-field'>
+                                <label>Target Prediction</label>
+                                <select 
+                                    style={{ width: '100%', padding: '0.8rem', borderRadius: '4px', background: 'rgba(0,0,0,0.2)', color: 'white', border: '1px solid rgba(255,255,255,0.1)' }}
+                                    value={config.target_prediction || 'EVEN'}
+                                    onChange={(e) => trade_engine.updateConfig(activeStrategy, 'target_prediction' as keyof TTradeConfig, e.target.value as any)}
+                                >
+                                    <option value="EVEN" style={{ background: '#1f2937' }}>Trade Even</option>
+                                    <option value="ODD" style={{ background: '#1f2937' }}>Trade Odd</option>
+                                </select>
+                            </div>
+                            <div className='input-field'>
+                                <label>Entry Pattern</label>
+                                <select 
+                                    style={{ width: '100%', padding: '0.8rem', borderRadius: '4px', background: 'rgba(0,0,0,0.2)', color: 'white', border: '1px solid rgba(255,255,255,0.1)' }}
+                                    value={config.entry_pattern || 'PATTERN_1'}
+                                    onChange={(e) => trade_engine.updateConfig(activeStrategy, 'entry_pattern' as keyof TTradeConfig, e.target.value as any)}
+                                >
+                                    <option value="PATTERN_1" style={{ background: '#1f2937' }}>Threshold + Consec.</option>
+                                    <option value="PATTERN_2" style={{ background: '#1f2937' }}>High/2nd/Least Rankings</option>
+                                </select>
+                            </div>
+                            {config.entry_pattern !== 'PATTERN_2' && (
+                                <>
+                                    <div className='input-field'>
+                                        <label>Trigger %</label>
+                                        <input type='number' value={config.trigger_percentage || 55} onChange={(e) => trade_engine.updateConfig(activeStrategy, 'trigger_percentage' as keyof TTradeConfig, parseFloat(e.target.value) as any)} />
+                                    </div>
+                                    <div className='input-field'>
+                                        <label>Consecutive Ticks</label>
+                                        <input type='number' value={config.consecutive_ticks || 2} onChange={(e) => trade_engine.updateConfig(activeStrategy, 'consecutive_ticks' as keyof TTradeConfig, parseInt(e.target.value) as any)} />
+                                    </div>
+                                </>
+                            )}
+                        </>
+                    )}
+                    {activeStrategy === 'differs' && (
+                        <>
+                            <div className='input-field'>
+                                <label>Max Allowed %</label>
+                                <input type='number' step='1' value={config.differs_max_percentage ?? 9} onChange={(e) => trade_engine.updateConfig(activeStrategy, 'differs_max_percentage' as keyof TTradeConfig, parseFloat(e.target.value) as any)} />
+                            </div>
+                            <div className='input-field'>
+                                <label>Target Appearances</label>
+                                <input type='number' step='1' min='1' value={config.differs_target_ticks ?? 2} onChange={(e) => trade_engine.updateConfig(activeStrategy, 'differs_target_ticks' as keyof TTradeConfig, parseInt(e.target.value) as any)} />
+                            </div>
+                            <div className='input-field'>
+                                <label>Bulk Trades</label>
+                                <input type='number' step='1' min='1' max='10' value={config.bulk_trades_count ?? 1} onChange={(e) => trade_engine.updateConfig(activeStrategy, 'bulk_trades_count' as keyof TTradeConfig, parseInt(e.target.value) as any)} />
+                            </div>
+                        </>
+                    )}
                 </div>
 
                 <div className='toggles-row'>
@@ -385,8 +451,8 @@ const DigitCracker = observer(() => {
                             <div className='strategy-info'>
                                 <h3>Even vs Odd Strategy</h3>
                                 <div className='strategy-description'>
-                                    <p><strong>Logic:</strong> If any digits have above 55% and increasing. If highest digit is even, wait for 2 or more consecutive odd digits then when even appears start trading. Same applies for odd strategy.</p>
-                                    <p><strong>Max Runs:</strong> 12 (unless stopped manually)</p>
+                                    <p><strong>Logic:</strong> Follows the configured trigger conditions, target, and entry pattern (consecutive opposite digits or high/2nd/least rankings).</p>
+                                    <p><strong>Max Runs:</strong> Selected in configuration (default 12).</p>
                                 </div>
                                 <div className='power-display'>
                                     <div className='power-item'>
@@ -400,9 +466,9 @@ const DigitCracker = observer(() => {
                                     <div className='power-item prediction'>
                                         <span className='label'>🎯 Current Signal:</span>
                                         <span className='value' style={{ color: '#a855f7', fontWeight: 'bold' }}>
-                                            {percentages.even > 55 ? 'EVEN dominant - Wait for 2+ ODD then EVEN' : 
-                                             percentages.odd > 55 ? 'ODD dominant - Wait for 2+ EVEN then ODD' : 
-                                             'Waiting for 55%+ threshold...'}
+                                            {percentages.even >= (trade_engine.even_odd_config.trigger_percentage || 55) ? 'EVEN threshold met' : 
+                                             percentages.odd >= (trade_engine.even_odd_config.trigger_percentage || 55) ? 'ODD threshold met' : 
+                                             `Waiting for ${trade_engine.even_odd_config.trigger_percentage || 55}%+ threshold...`}
                                         </span>
                                     </div>
                                 </div>

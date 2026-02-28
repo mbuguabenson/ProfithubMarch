@@ -28,6 +28,22 @@ export type TBotConfig = {
     take_profit?: number;
     max_runs?: number;
     runs_count?: number;
+
+    // Advanced Entry Conditions
+    trigger_condition?: 'EVEN' | 'ODD' | 'EITHER';
+    trigger_percentage?: number;
+    entry_pattern?: 'PATTERN_1' | 'PATTERN_2';
+    consecutive_ticks?: number;
+    target_prediction?: 'EVEN' | 'ODD';
+
+    // Advanced Differs Conditions
+    differs_max_percentage?: number;
+    differs_target_ticks?: number;
+    bulk_trades_count?: number;
+    differs_digit_tracker?: { digit: number; count: number; last_percentage: number };
+
+    // Advanced Over/Under Tracking
+    power_history?: number[][];
 };
 // ... existing types ...
 
@@ -64,6 +80,11 @@ export default class SmartAutoStore {
         use_martingale: true,
         max_runs: 12,
         runs_count: 0,
+        trigger_condition: 'EITHER',
+        trigger_percentage: 55,
+        entry_pattern: 'PATTERN_1',
+        consecutive_ticks: 2,
+        target_prediction: 'EVEN',
     };
 
     @observable accessor over_under_config: TBotConfig = {
@@ -316,7 +337,10 @@ export default class SmartAutoStore {
                 this.runDiffersLogic(stats.digit_stats);
                 break;
             case 'matches':
-                this.runMatchesLogic(stats.digit_stats);
+                this.runMatchesLogic(
+                    stats.digit_stats,
+                    stats.percentages as { rise: number; fall: number; [key: string]: number }
+                );
                 break;
             case 'smart_auto_24':
                 this.runSmartAuto24Logic(stats.percentages as { over: number; under: number });
@@ -329,74 +353,174 @@ export default class SmartAutoStore {
 
     private runEvenOddLogic = (stats: TStrategyStats) => {
         const config = this.even_odd_config;
-        const { percentages, prev_streak_odd, prev_streak_even } = stats;
+        const { percentages, prev_streak_odd, prev_streak_even, digit_stats } = stats;
 
-        // Rule: Highest % is Even -> Wait for 2+ Odd -> Even appears -> Trade Even
-        if (percentages.even > 55) {
-            // Check if we just had an ODD streak of >= 2, and now we carry on with EVEN (current digit is Even)
-            // consecutive_even is mostly likely 1 right now if we just switched.
-            if (this.consecutive_even >= 1 && prev_streak_odd >= 2) {
-                this.addLog(
-                    `Trigger: EVEN Strong (${percentages.even.toFixed(1)}%) & ${prev_streak_odd} consecutive ODDs ended.`,
-                    'info'
-                );
-                this.executeContract('DIGITEVEN', 0, config);
+        const conditionType = config.trigger_condition || 'EITHER';
+        const percentThreshold = config.trigger_percentage || 55;
+        const reqConsecutive = config.consecutive_ticks || 2;
+        const targetPrediction = config.target_prediction || 'EVEN';
+
+        let triggerMatched = false;
+
+        if (config.entry_pattern === 'PATTERN_2') {
+            // Pattern 2: Highest, 2nd Highest, and Least are all Even (or Odd)
+            const sorted = [...digit_stats].sort((a, b) => b.count - a.count);
+            if (sorted.length >= 10) {
+                const h1 = sorted[0].digit;
+                const h2 = sorted[1].digit;
+                const least = sorted[9].digit;
+
+                if (conditionType === 'EVEN' || conditionType === 'EITHER') {
+                    if (h1 % 2 === 0 && h2 % 2 === 0 && least % 2 === 0) {
+                        this.addLog(`Trigger Pattern 2: Highest, 2nd, and Least are EVEN.`, 'info');
+                        triggerMatched = true;
+                    }
+                }
+                if (!triggerMatched && (conditionType === 'ODD' || conditionType === 'EITHER')) {
+                    if (h1 % 2 !== 0 && h2 % 2 !== 0 && least % 2 !== 0) {
+                        this.addLog(`Trigger Pattern 2: Highest, 2nd, and Least are ODD.`, 'info');
+                        triggerMatched = true;
+                    }
+                }
+            }
+        } else {
+            // Pattern 1: Wait for % threshold -> wait for N consecutive opposite -> trade target
+            if (conditionType === 'EVEN' || conditionType === 'EITHER') {
+                if (percentages.even >= percentThreshold) {
+                    // We want to trade the target prediction. The "opposite" is what we wait to finish.
+                    // e.g. If target is EVEN, opposite is ODD. We wait for `reqConsecutive` ODDs, then EVEN appears.
+                    if (targetPrediction === 'EVEN') {
+                        if (this.consecutive_even >= 1 && prev_streak_odd >= reqConsecutive) {
+                            this.addLog(
+                                `Trigger: EVEN at ${percentages.even.toFixed(1)}% & ${prev_streak_odd} consecutive ODDs ended.`,
+                                'info'
+                            );
+                            triggerMatched = true;
+                        }
+                    } else {
+                        // targetPrediction === 'ODD'
+                        if (this.consecutive_odd >= 1 && prev_streak_even >= reqConsecutive) {
+                            this.addLog(
+                                `Trigger: EVEN at ${percentages.even.toFixed(1)}% & ${prev_streak_even} consecutive EVENs ended.`,
+                                'info'
+                            );
+                            triggerMatched = true;
+                        }
+                    }
+                }
+            }
+
+            if (!triggerMatched && (conditionType === 'ODD' || conditionType === 'EITHER')) {
+                if (percentages.odd >= percentThreshold) {
+                    if (targetPrediction === 'EVEN') {
+                        if (this.consecutive_even >= 1 && prev_streak_odd >= reqConsecutive) {
+                            this.addLog(
+                                `Trigger: ODD at ${percentages.odd.toFixed(1)}% & ${prev_streak_odd} consecutive ODDs ended.`,
+                                'info'
+                            );
+                            triggerMatched = true;
+                        }
+                    } else {
+                        if (this.consecutive_odd >= 1 && prev_streak_even >= reqConsecutive) {
+                            this.addLog(
+                                `Trigger: ODD at ${percentages.odd.toFixed(1)}% & ${prev_streak_even} consecutive EVENs ended.`,
+                                'info'
+                            );
+                            triggerMatched = true;
+                        }
+                    }
+                }
             }
         }
-        // Rule: Highest % is Odd -> Wait for 2+ Even -> Odd appears -> Trade Odd
-        else if (percentages.odd > 55) {
-            if (this.consecutive_odd >= 1 && prev_streak_even >= 2) {
-                this.addLog(
-                    `Trigger: ODD Strong (${percentages.odd.toFixed(1)}%) & ${prev_streak_even} consecutive EVENs ended.`,
-                    'info'
-                );
-                this.executeContract('DIGITODD', 0, config);
-            }
+
+        if (triggerMatched) {
+            this.executeContract(targetPrediction === 'EVEN' ? 'DIGITEVEN' : 'DIGITODD', 0, config);
         }
     };
 
     private runOverUnderLogic = (stats: TStrategyStats) => {
         const config = this.over_under_config;
-        const { percentages, prev_streak_over, prev_streak_under } = stats;
+        const { percentages, prev_streak_over, prev_streak_under, digit_stats } = stats;
 
-        // Rule: Under > 55% -> Suggest Under 6-9 -> Wait for 2+ Over -> Under appears -> Trade Under
-        if (percentages.under > 55) {
-            // Config prediction should be set by user or default. If user sets it, respect it.
-            // If prediction is low (0-4), it's contradicting the strategy "Trade Under 6-9".
-            // The prompt says "suggest to user". Assuming user set it or we force strict rule?
-            // Prompt says "makesure to place correct prediction". I will force prediction if not set correctly or just use config.
-            // Let's use config.prediction if it's safe (6,7,8,9). If < 6, default to 8.
-            let prediction = config.prediction;
-            if (prediction < 6) prediction = 8; // Default safe Under prediction
+        // Rule: Identify overall bias
+        const is_over = percentages.over >= percentages.under;
+        const best_bias_pct = Math.max(percentages.over, percentages.under);
 
-            if (this.consecutive_under >= 1 && prev_streak_over >= 2) {
-                this.addLog(
-                    `Trigger: UNDER Strong (${percentages.under.toFixed(1)}%) & ${prev_streak_over} consecutive OVERs ended. Trading UNDER ${prediction}.`,
-                    'info'
-                );
-                this.executeContract('DIGITUNDER', prediction, config);
-            }
+        // Track aggregate power trend
+        const current_power_array = digit_stats
+            .slice()
+            .sort((a, b) => a.digit - b.digit)
+            .map(d => d.percentage);
+        const history = config.power_history || [];
+        history.push(current_power_array);
+        if (history.length > 5) history.shift();
+        config.power_history = history;
+
+        const prev_pct =
+            history.length >= 2
+                ? is_over
+                    ? history[history.length - 2].slice(5).reduce((a, b) => a + b, 0)
+                    : history[history.length - 2].slice(0, 5).reduce((a, b) => a + b, 0)
+                : best_bias_pct;
+
+        const power_increasing = best_bias_pct > prev_pct;
+        const power_decreasing = best_bias_pct < prev_pct;
+
+        if (power_decreasing) {
+            this.addLog('UNSTABLE MARKET - Power Decreasing, searching for trend...', 'info');
+            return;
         }
-        // Rule: Over > 55% -> Suggest Over 0-3 -> Wait for 2+ Under -> Over appears -> Trade Over
-        else if (percentages.over > 55) {
-            let prediction = config.prediction;
-            if (prediction > 3) prediction = 1; // Default safe Over prediction
 
-            if (this.consecutive_over >= 1 && prev_streak_under >= 2) {
+        if (best_bias_pct > 55 && power_increasing) {
+            // Determine safest OVER/UNDER prediction dynamically
+            let prediction = config.prediction;
+            if (is_over) {
+                const over_digits = digit_stats
+                    .slice()
+                    .filter(s => s.digit > 4)
+                    .sort((a, b) => b.percentage - a.percentage);
+                if (over_digits.length > 0) prediction = Math.min(over_digits[0].digit, over_digits[1].digit);
+            } else {
+                const under_digits = digit_stats
+                    .slice()
+                    .filter(s => s.digit <= 4)
+                    .sort((a, b) => b.percentage - a.percentage);
+                if (under_digits.length > 0) prediction = Math.max(under_digits[0].digit, under_digits[1].digit);
+            }
+
+            // Suggestive update to UI
+            if (config.prediction !== prediction) {
+                runInAction(() => {
+                    config.prediction = prediction;
+                });
+            }
+
+            // Wait for entry signal pattern
+            if (is_over && this.consecutive_over >= 1 && prev_streak_under >= 2) {
                 this.addLog(
-                    `Trigger: OVER Strong (${percentages.over.toFixed(1)}%) & ${prev_streak_under} consecutive UNDERs ended. Trading OVER ${prediction}.`,
-                    'info'
+                    `Trigger: OVER Strong (${best_bias_pct.toFixed(1)}%). Suggesting/Trading OVER ${prediction}.`,
+                    'success'
                 );
                 this.executeContract('DIGITOVER', prediction, config);
+            } else if (!is_over && this.consecutive_under >= 1 && prev_streak_over >= 2) {
+                this.addLog(
+                    `Trigger: UNDER Strong (${best_bias_pct.toFixed(1)}%). Suggesting/Trading UNDER ${prediction}.`,
+                    'success'
+                );
+                this.executeContract('DIGITUNDER', prediction, config);
             }
         }
     };
 
     private runDiffersLogic = (digit_stats: TDigitStat[]) => {
         const config = this.differs_config;
+        const maxPct = config.differs_max_percentage || 9;
+        const targetTicks = config.differs_target_ticks || 2;
 
-        // Rule: Select 2-7. Not Highest, 2nd, Least. < 10%. Decreasing.
-        const sortedStats = [...digit_stats].sort((a, b) => b.count - a.count); // Sort by frequency (count)
+        // Rule: Target digit 2-7. Exclude Top 1, 2, and Least (10th).
+        const sortedStats = [...digit_stats].sort((a, b) => b.count - a.count);
+        if (sortedStats.length < 10) return;
+
         const highest = sortedStats[0].digit;
         const second = sortedStats[1].digit;
         const least = sortedStats[9].digit;
@@ -408,7 +532,7 @@ export default class SmartAutoStore {
                 s.digit !== highest &&
                 s.digit !== second &&
                 s.digit !== least &&
-                s.percentage < 10 &&
+                s.percentage < maxPct &&
                 !s.is_increasing
             ); // Decreasing trend
         });
@@ -417,36 +541,94 @@ export default class SmartAutoStore {
             // Select best: The one with lowest percentage
             const target = eligible.sort((a, b) => a.percentage - b.percentage)[0];
 
-            // Auto Update Prediction
-            if (config.prediction !== target.digit) {
-                this.updateConfig('differs', 'prediction', target.digit);
+            let tracker = config.differs_digit_tracker;
+
+            // If we have a new target or no tracker, initialize it
+            if (!tracker || tracker.digit !== target.digit) {
+                tracker = { digit: target.digit, count: 0, last_percentage: target.percentage };
+                config.differs_digit_tracker = tracker;
+
+                // If it's a new tracking, we count this current appearance if it's the last digit
+                if (this.last_digit_analyzed === target.digit) {
+                    tracker.count = 1;
+                }
+            } else {
+                // If percentage drops or stays same, we count occurrences
+                if (target.percentage <= tracker.last_percentage) {
+                    tracker.last_percentage = target.percentage;
+
+                    if (this.last_digit_analyzed === target.digit) {
+                        tracker.count++;
+                    }
+                } else {
+                    // Reset if percentage increases (breaks trend)
+                    tracker.count = 0;
+                    tracker.last_percentage = target.percentage;
+                }
             }
 
-            this.addLog(`Differ Trigger: Digit ${target.digit} prob < 10% & decreasing.`, 'info');
-            this.executeContract('DIGITDIFF', target.digit, config);
+            this.addLog(
+                `Tracking Differ ${target.digit}: ${tracker.count}/${targetTicks} appearances (<${maxPct}%)`,
+                'info'
+            );
+
+            if (tracker.count >= targetTicks) {
+                // Auto Update Prediction
+                if (config.prediction !== target.digit) {
+                    this.updateConfig('differs', 'prediction', target.digit);
+                }
+
+                this.addLog(
+                    `Differ Trigger Hit: Digit ${target.digit} appeared ${targetTicks} times, prob < ${maxPct}% & decreasing.`,
+                    'success'
+                );
+                this.executeContract('DIGITDIFF', target.digit, config);
+
+                // Reset tracker after trade fires
+                config.differs_digit_tracker = undefined;
+            }
+        } else {
+            // Reset tracker if no eligible digits
+            config.differs_digit_tracker = undefined;
         }
     };
 
-    private runMatchesLogic = (digit_stats: TDigitStat[]) => {
+    private runMatchesLogic = (
+        digit_stats: TDigitStat[],
+        percentages: { rise: number; fall: number; [key: string]: number }
+    ) => {
         const config = this.matches_config;
 
         // Rule: Select Highest, 2nd, or Least. Increasing.
         const sortedStats = [...digit_stats].sort((a, b) => b.count - a.count);
+        if (sortedStats.length < 10) return;
+
         const candidates = [sortedStats[0], sortedStats[1], sortedStats[9]];
 
         const validCandidates = candidates.filter(s => s.is_increasing);
+        const isMarketRising = (percentages.rise || 0) > (percentages.fall || 0);
 
-        if (validCandidates.length > 0) {
+        if (validCandidates.length > 0 && isMarketRising) {
             // Pick strongest (highest count)
             const target = validCandidates.sort((a, b) => b.count - a.count)[0];
 
             // Auto Update Prediction
             if (config.prediction !== target.digit) {
-                this.updateConfig('matches', 'prediction', target.digit);
+                runInAction(() => {
+                    config.prediction = target.digit;
+                });
             }
 
-            this.addLog(`Match Trigger: Digit ${target.digit} prob increasing.`, 'info');
+            this.addLog(`Match Trigger: Digit ${target.digit} prob increasing & Market Rising.`, 'success');
             this.executeContract('DIGITMATCH', target.digit, config);
+        } else if (validCandidates.length > 0 && !isMarketRising) {
+            const target = validCandidates.sort((a, b) => b.count - a.count)[0];
+            if (config.prediction !== target.digit) {
+                runInAction(() => {
+                    config.prediction = target.digit;
+                });
+            }
+            this.addLog(`Match Trigger: Target rising, waiting for Market Rise...`, 'info');
         }
     };
 
@@ -467,7 +649,7 @@ export default class SmartAutoStore {
     private runSmartAuto24Logic = (percentages: { over: number; under: number }) => {
         // Logic same as previously defined or simplified for brevity as user focused on others
         const config = this.smart_auto_24_config;
-        if (config.runs_count >= config.max_runs) {
+        if (config.runs_count && config.max_runs && config.runs_count >= config.max_runs) {
             this.stopAllBots('MAX RUNS REACHED');
             return;
         }
@@ -527,8 +709,34 @@ export default class SmartAutoStore {
 
     private executeContract = async (contract_type: string, prediction: number, config: TBotConfig) => {
         if (this.is_executing) return;
-        this.is_executing = true;
 
+        runInAction(() => {
+            this.is_executing = true;
+            this.bot_status = 'EXECUTING';
+        });
+
+        const numTrades = config.bulk_trades_count || 1;
+
+        if (numTrades > 1) {
+            this.addLog(
+                `Executing Bulk Trades (${numTrades} contracts) for ${contract_type} on digit ${prediction}...`,
+                'trade'
+            );
+        }
+
+        for (let i = 0; i < numTrades; i++) {
+            if (!this.active_bot || !config.is_running) break;
+
+            await this.executeSingleContract(contract_type, prediction, config);
+
+            // Short delay between bulk trades
+            if (i < numTrades - 1) {
+                await new Promise(resolve => setTimeout(resolve, 500));
+            }
+        }
+    };
+
+    private executeSingleContract = async (contract_type: string, prediction: number, config: TBotConfig) => {
         try {
             const { api_base: apiBaseInstance } = await import('@/external/bot-skeleton');
             if (!apiBaseInstance.api) throw new Error('API not initialized');
@@ -679,7 +887,8 @@ export default class SmartAutoStore {
     private stopAllBots = (reason: string) => {
         const bot_types = ['even_odd', 'over_under', 'differs', 'matches', 'smart_auto_24', 'rise_fall'] as const;
         bot_types.forEach(b => {
-            const config = (this as any)[`${b}_config`] as TBotConfig | undefined;
+            const configKey = `${b}_config` as keyof SmartAutoStore;
+            const config = this[configKey] as unknown as TBotConfig | undefined;
             if (config) config.is_running = false;
         });
         this.active_bot = null;

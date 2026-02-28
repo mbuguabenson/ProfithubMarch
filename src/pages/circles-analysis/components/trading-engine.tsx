@@ -67,7 +67,7 @@ const TradingEngine = observer(() => {
                         <input 
                             type='number' 
                             value={config.max_runs || 12} 
-                            onChange={(e) => smart_auto.updateConfig(botType, 'max_runs' as any, parseInt(e.target.value))} 
+                            onChange={(e) => smart_auto.updateConfig(botType, 'max_runs', parseInt(e.target.value))} 
                         />
                     </div>
                     <div className='input-group'>
@@ -78,9 +78,9 @@ const TradingEngine = observer(() => {
                             onChange={(e) => smart_auto.updateConfig(botType, 'ticks', parseInt(e.target.value))} 
                         />
                     </div>
-                    {(botType === 'over_under' || botType === 'differs' || botType === 'matches') && (
+                    {(botType === 'differs' || botType === 'matches' || botType === 'over_under') && (
                         <div className='input-group'>
-                            <label>Prediction</label>
+                            <label>Prediction {botType === 'over_under' || botType === 'matches' ? '(Suggested)' : ''}</label>
                             <input 
                                 type='number' 
                                 value={config.prediction} 
@@ -88,7 +88,104 @@ const TradingEngine = observer(() => {
                             />
                         </div>
                     )}
+                    {(botType === 'differs' || botType === 'matches' || botType === 'over_under' || botType === 'even_odd') && (
+                        <div className='input-group'>
+                            <label>Bulk Trades</label>
+                            <input 
+                                type='number' 
+                                min='1'
+                                max='10'
+                                value={config.bulk_trades_count || 1} 
+                                onChange={(e) => smart_auto.updateConfig(botType, 'bulk_trades_count', parseInt(e.target.value))} 
+                            />
+                        </div>
+                    )}
                 </div>
+
+                {botType === 'even_odd' && (
+                    <div className='advanced-controls-wrapper'>
+                        <div className='controls-grid'>
+                            <div className='input-group'>
+                                <label>Trigger Condition</label>
+                                <select 
+                                    value={config.trigger_condition || 'EITHER'}
+                                    onChange={(e) => smart_auto.updateConfig(botType, 'trigger_condition', e.target.value as any)}
+                                >
+                                    <option value="EITHER">Either (Even/Odd)</option>
+                                    <option value="EVEN">Even Only</option>
+                                    <option value="ODD">Odd Only</option>
+                                </select>
+                            </div>
+                            <div className='input-group'>
+                                <label>Target Prediction</label>
+                                <select 
+                                    value={config.target_prediction || 'EVEN'}
+                                    onChange={(e) => smart_auto.updateConfig(botType, 'target_prediction', e.target.value as any)}
+                                >
+                                    <option value="EVEN">Trade Even</option>
+                                    <option value="ODD">Trade Odd</option>
+                                </select>
+                            </div>
+                            <div className='input-group'>
+                                <label>Entry Pattern</label>
+                                <select 
+                                    value={config.entry_pattern || 'PATTERN_1'}
+                                    onChange={(e) => smart_auto.updateConfig(botType, 'entry_pattern', e.target.value as any)}
+                                >
+                                    <option value="PATTERN_1">Threshold + Consecutive</option>
+                                    <option value="PATTERN_2">Rankings (High/2nd/Least)</option>
+                                </select>
+                            </div>
+                            
+                            {config.entry_pattern !== 'PATTERN_2' && (
+                                <>
+                                    <div className='input-group'>
+                                        <label>Trigger %</label>
+                                        <input 
+                                            type='number' 
+                                            value={config.trigger_percentage || 55} 
+                                            onChange={(e) => smart_auto.updateConfig(botType, 'trigger_percentage', parseFloat(e.target.value))} 
+                                        />
+                                    </div>
+                                    <div className='input-group'>
+                                        <label>Consecutive Ticks</label>
+                                        <input 
+                                            type='number' 
+                                            value={config.consecutive_ticks || 2} 
+                                            onChange={(e) => smart_auto.updateConfig(botType, 'consecutive_ticks', parseInt(e.target.value))} 
+                                        />
+                                    </div>
+                                </>
+                            )}
+                        </div>
+                    </div>
+                )}
+
+                {botType === 'differs' && (
+                    <div className='advanced-controls-wrapper'>
+                        <div className='controls-grid'>
+                            <div className='input-group'>
+                                <label>Max Allowed %</label>
+                                <input 
+                                    type='number' 
+                                    step='1' 
+                                    value={config.differs_max_percentage ?? 9} 
+                                    onChange={(e) => smart_auto.updateConfig(botType, 'differs_max_percentage' as any, parseFloat(e.target.value))} 
+                                />
+                            </div>
+                            <div className='input-group'>
+                                <label>Target Appearances</label>
+                                <input 
+                                    type='number' 
+                                    step='1' 
+                                    min='1' 
+                                    value={config.differs_target_ticks ?? 2} 
+                                    onChange={(e) => smart_auto.updateConfig(botType, 'differs_target_ticks' as any, parseInt(e.target.value))} 
+                                />
+                            </div>
+                        </div>
+                    </div>
+                )}
 
                 <div className='toggles-grid'>
                     <div className='toggle-item'>
@@ -166,7 +263,7 @@ const TradingEngine = observer(() => {
                             <div className='history-boxes'>
                                 {even_odd_history.slice(0, 30).map((h, i) => (
                                     <div key={i} className={`history-box ${h.type}`}>
-                                        {h.type === 'EVEN' ? 'E' : 'O'}
+                                        {h.type}
                                     </div>
                                 ))}
                             </div>
@@ -185,7 +282,7 @@ const TradingEngine = observer(() => {
                             <div className='history-boxes'>
                                 {over_under_history.slice(0, 30).map((h, i) => (
                                     <div key={i} className={`history-box ${h.type}`}>
-                                        {h.type === 'OVER' ? 'O' : 'U'}
+                                        {h.type}
                                     </div>
                                 ))}
                             </div>
@@ -218,7 +315,7 @@ const TradingEngine = observer(() => {
                             <div className='history-boxes'>
                                 {rise_fall_history.slice(0, 30).map((h, i) => (
                                     <div key={i} className={`history-box ${h.type}`}>
-                                        {h.type === 'RISE' ? 'R' : 'F'}
+                                        {h.type}
                                     </div>
                                 ))}
                             </div>

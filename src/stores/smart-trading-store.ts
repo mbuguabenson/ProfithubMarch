@@ -92,6 +92,17 @@ export interface TStrategy {
     auto_trade_enabled?: boolean;
     // Per-Bot Digit Stats
     bot_digit_stats?: TSmartDigitStat[];
+    // Custom Even/Odd triggers
+    trigger_condition?: 'EVEN' | 'ODD' | 'EITHER';
+    trigger_percentage?: number;
+    entry_pattern?: 'PATTERN_1' | 'PATTERN_2';
+    consecutive_ticks?: number;
+    target_prediction?: 'EVEN' | 'ODD';
+    // Custom Differs triggers
+    differs_max_percentage?: number;
+    differs_target_ticks?: number;
+    bulk_trades_count?: number;
+    differs_digit_tracker?: { digit: number; count: number; last_percentage: number } | null;
 }
 
 export type TTradeHistory = {
@@ -477,6 +488,10 @@ export default class SmartTradingStore {
             selected_symbol: 'R_100',
             auto_trade_enabled: false,
             bot_digit_stats: Array.from({ length: 10 }, (_, i) => ({ digit: i, count: 0, percentage: 0 })),
+            differs_max_percentage: 9,
+            differs_target_ticks: 2,
+            bulk_trades_count: 1,
+            differs_digit_tracker: null,
         },
     };
 
@@ -1241,73 +1256,61 @@ export default class SmartTradingStore {
         switch (strategy_id) {
             case 'EVENODD': {
                 const is_even = (d: number) => d % 2 === 0;
-                const most_is_even = is_even(most_appearing);
-                const second_is_even = is_even(second_most);
-                const least_is_even = is_even(least_appearing);
-
                 const even_pct = this.digit_stats
                     .filter(s => is_even(s.digit))
                     .reduce((acc, s) => acc + s.percentage, 0);
                 const odd_pct = 100 - even_pct;
 
-                // Check for unstable market (decreasing power)
-                const history = strategy.power_history || [];
-                if (history.length >= 2) {
-                    const current_dominant_pct = Math.max(even_pct, odd_pct);
-                    const prev_even = history[history.length - 2]
-                        .filter((_, i) => is_even(i))
-                        .reduce((a, b) => a + b, 0);
-                    const prev_odd = 100 - prev_even;
-                    const prev_dominant_pct = Math.max(prev_even, prev_odd);
+                const trigger_cond = strategy.trigger_condition || 'EITHER';
+                const trigger_pct = strategy.trigger_percentage || 55;
+                const entry_pattern = strategy.entry_pattern || 'PATTERN_1';
+                const consecutive = strategy.consecutive_ticks || 2;
+                const target_pred = strategy.target_prediction || 'EVEN';
 
-                    if (current_dominant_pct < prev_dominant_pct) {
-                        strategy.is_unstable = true;
-                        strategy.market_message = 'UNSTABLE MARKET - Power Decreasing';
-                        return { action: 'WAIT' };
+                let tradeType: 'DIGITEVEN' | 'DIGITODD' | null = null;
+                let market_msg = `Analyzing Even (${even_pct.toFixed(1)}%) vs Odd (${odd_pct.toFixed(1)}%)`;
+
+                if (entry_pattern === 'PATTERN_1') {
+                    const even_cond = trigger_cond === 'EVEN' || trigger_cond === 'EITHER';
+                    const odd_cond = trigger_cond === 'ODD' || trigger_cond === 'EITHER';
+
+                    const even_triggered = even_cond && even_pct >= trigger_pct && this.consecutive_odd >= consecutive;
+                    const odd_triggered = odd_cond && odd_pct >= trigger_pct && this.consecutive_even >= consecutive;
+
+                    if (even_triggered || odd_triggered) {
+                        tradeType = target_pred === 'EVEN' ? 'DIGITEVEN' : 'DIGITODD';
+                        market_msg = `PATTERN 1 TRIGGERED: Trading ${target_pred}`;
+                    } else if ((even_cond && even_pct >= trigger_pct) || (odd_cond && odd_pct >= trigger_pct)) {
+                        market_msg = `Threshold hit. Waiting for ${consecutive} opposite ticks...`;
                     }
-                }
-                strategy.is_unstable = false;
+                } else if (entry_pattern === 'PATTERN_2') {
+                    if (this.digit_stats && this.digit_stats.length > 0) {
+                        const sorted = [...this.digit_stats].sort((a, b) => b.percentage - a.percentage);
+                        const highest = sorted[0].digit;
+                        const second = sorted[1].digit;
+                        const least = sorted[9].digit;
 
-                if (most_is_even && second_is_even && least_is_even && even_pct >= 55) {
-                    strategy.market_message = `Strong EVEN market (${even_pct.toFixed(1)}%) - Waiting for entry...`;
+                        const allEven = is_even(highest) && is_even(second) && is_even(least);
+                        const allOdd = !is_even(highest) && !is_even(second) && !is_even(least);
 
-                    // Entry: 2+ consecutive odd numbers, then top even appears and trend is rising
-                    const last_two = digits.slice(-2);
-                    const last_digit = digits[digits.length - 1];
-                    if (last_two.every(d => !is_even(d)) && is_even(last_digit)) {
-                        const entry_digit_power = getPowerTrend(last_digit);
-                        const most_power = getPowerTrend(most_appearing);
-                        const least_power = getPowerTrend(least_appearing);
-
-                        if (
-                            entry_digit_power === 'increasing' ||
-                            most_power === 'increasing' ||
-                            least_power === 'increasing'
-                        ) {
-                            return { action: 'TRADE', contractType: 'DIGITEVEN', confidence: even_pct };
+                        if ((trigger_cond === 'EVEN' || trigger_cond === 'EITHER') && allEven) {
+                            tradeType = target_pred === 'EVEN' ? 'DIGITEVEN' : 'DIGITODD';
+                            market_msg = `PATTERN 2 TRIGGERED: Trading ${target_pred}`;
+                        } else if ((trigger_cond === 'ODD' || trigger_cond === 'EITHER') && allOdd) {
+                            tradeType = target_pred === 'EVEN' ? 'DIGITEVEN' : 'DIGITODD';
+                            market_msg = `PATTERN 2 TRIGGERED: Trading ${target_pred}`;
+                        } else {
+                            market_msg = `Waiting for pattern (Highest, 2nd, Least)...`;
                         }
                     }
-                } else if (!most_is_even && !second_is_even && !least_is_even && odd_pct >= 55) {
-                    strategy.market_message = `Strong ODD market (${odd_pct.toFixed(1)}%) - Waiting for entry...`;
-
-                    const last_two = digits.slice(-2);
-                    const last_digit = digits[digits.length - 1];
-                    if (last_two.every(d => is_even(d)) && !is_even(last_digit)) {
-                        const entry_digit_power = getPowerTrend(last_digit);
-                        const most_power = getPowerTrend(most_appearing);
-                        const least_power = getPowerTrend(least_appearing);
-
-                        if (
-                            entry_digit_power === 'increasing' ||
-                            most_power === 'increasing' ||
-                            least_power === 'increasing'
-                        ) {
-                            return { action: 'TRADE', contractType: 'DIGITODD', confidence: odd_pct };
-                        }
-                    }
-                } else {
-                    strategy.market_message = 'Neutral Market - Waiting for parity alignment';
                 }
+
+                strategy.market_message = market_msg;
+
+                if (tradeType) {
+                    return { action: 'TRADE', contractType: tradeType, confidence: Math.max(even_pct, odd_pct) };
+                }
+
                 return { action: 'WAIT' };
             }
             case 'OVER3UNDER6':
@@ -1411,24 +1414,58 @@ export default class SmartTradingStore {
                 strategy.is_unstable = false;
 
                 // selected digit should NOT be most, 2nd most, or least.
-                // digit to differ should be below 10% and decreasingly.
+                // digit to differ should be below configured % (default 9%) and decreasing.
                 const valid_digits = [2, 3, 4, 5, 6, 7].filter(
                     d => d !== most_appearing && d !== second_most && d !== least_appearing
                 );
 
+                const max_pct = strategy.differs_max_percentage || 9;
                 const stats_2_7 = this.digit_stats.filter(s => valid_digits.includes(s.digit));
-                const target = stats_2_7.find(s => s.percentage < 10 && getPowerTrend(s.digit) === 'decreasing');
+                const target = stats_2_7.find(s => s.percentage <= max_pct && getPowerTrend(s.digit) === 'decreasing');
+
+                const target_ticks = strategy.differs_target_ticks || 2;
+                const last_digit = digits[digits.length - 1];
 
                 if (target) {
-                    // Entry point: when least or most appearing digit appears
-                    const last_digit = digits[digits.length - 1];
-                    if (last_digit === most_appearing || last_digit === least_appearing) {
-                        strategy.market_message = `TRADING DIFFERS ${target.digit}...`;
-                        return { action: 'TRADE', contractType: 'DIGITDIFF', prediction: target.digit, confidence: 90 };
+                    if (!strategy.differs_digit_tracker || strategy.differs_digit_tracker.digit !== target.digit) {
+                        // New target locked
+                        strategy.differs_digit_tracker = {
+                            digit: target.digit,
+                            count: 0,
+                            last_percentage: target.percentage,
+                        };
+                        strategy.market_message = `Signal Lock: Digit ${target.digit} (Tracking...)`;
+                    } else {
+                        // Track occurrences if power is still valid
+                        const tracker = strategy.differs_digit_tracker;
+                        if (target.percentage <= tracker.last_percentage) {
+                            tracker.last_percentage = target.percentage;
+                            if (last_digit === target.digit) {
+                                tracker.count++;
+                            }
+
+                            if (tracker.count >= target_ticks) {
+                                strategy.market_message = `TRADING DIFFERS ${target.digit} (Appeared ${tracker.count}x)...`;
+                                // Reset tracker after trade fires
+                                strategy.differs_digit_tracker = null;
+                                return {
+                                    action: 'TRADE',
+                                    contractType: 'DIGITDIFF',
+                                    prediction: target.digit,
+                                    confidence: 90,
+                                };
+                            } else {
+                                strategy.market_message = `Signal Lock: Digit ${target.digit} - Appeared ${tracker.count}/${target_ticks} times`;
+                            }
+                        } else {
+                            // Power increased, invalidating entry
+                            strategy.differs_digit_tracker = null;
+                            strategy.market_message = `Tracking failed: Digit ${target.digit} power increased. Scanning...`;
+                        }
                     }
-                    strategy.market_message = `Signal Lock: Digit ${target.digit} - Waiting for entry...`;
                 } else {
-                    strategy.market_message = 'Scanning for low-power digits (2-7)...';
+                    strategy.differs_digit_tracker = null;
+                    strategy.market_message = `Scanning (Digits 2-7, <${max_pct}% & Decreasing)...`;
                 }
                 return { action: 'WAIT' };
             }
@@ -1443,7 +1480,9 @@ export default class SmartTradingStore {
                 const targets = [most_appearing, second_most, least_appearing];
                 const increasing_target = targets.find(d => getPowerTrend(d) === 'increasing');
 
-                if (increasing_target !== undefined) {
+                const isMarketRising = (this.percentages.rise || 0) > (this.percentages.fall || 0);
+
+                if (increasing_target !== undefined && isMarketRising) {
                     strategy.market_message = `TRADING MATCHES ${increasing_target}...`;
                     return {
                         action: 'TRADE',
@@ -1452,7 +1491,12 @@ export default class SmartTradingStore {
                         confidence: 20,
                     };
                 }
-                strategy.market_message = 'Waiting for power surge...';
+
+                if (increasing_target !== undefined && !isMarketRising) {
+                    strategy.market_message = `Target ${increasing_target} rising, waiting for Market Rise...`;
+                } else {
+                    strategy.market_message = 'Waiting for power surge on Top/Bottom digits...';
+                }
                 return { action: 'WAIT' };
             }
             default:
@@ -1486,6 +1530,27 @@ export default class SmartTradingStore {
         if (!strategy || strategy.status === 'trading' || !api_base.api) return;
 
         strategy.status = 'trading';
+        const trade_count = strategy.bulk_trades_count || 1;
+
+        for (let i = 0; i < trade_count; i++) {
+            // Do not fire subsequent trades if the strategy was stopped manually during the loop
+            if (!strategy.is_running && i > 0) break;
+
+            this.executeSingleStrategyTrade(strategy, override_type, override_prediction);
+
+            // Minimal pause between bulk contracts
+            if (i < trade_count - 1) {
+                await new Promise(resolve => setTimeout(resolve, 100));
+            }
+        }
+    };
+
+    @action
+    private executeSingleStrategyTrade = async (
+        strategy: TStrategy,
+        override_type?: string,
+        override_prediction?: number
+    ) => {
         const trade_type = override_type || strategy.trade_type;
         const prediction = override_prediction !== undefined ? override_prediction : strategy.prediction;
 
@@ -1600,7 +1665,10 @@ export default class SmartTradingStore {
                                 strategy.current_stake *= strategy.martingale;
                             }
                             strategy.profit_loss += profit;
-                            strategy.status = 'waiting';
+                            // Only set to waiting if it's still actively running
+                            if (strategy.is_running) {
+                                strategy.status = 'waiting';
+                            }
                         });
 
                         if (unsubscribe && typeof unsubscribe === 'function') unsubscribe();
