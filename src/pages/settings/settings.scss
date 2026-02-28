@@ -3,6 +3,10 @@
     height: 100%;
     color: var(--text-general);
 
+    @media (max-width: 768px) {
+        padding: 1.2rem;
+    }
+
     &__header {
         margin-bottom: 2rem;
 
@@ -12,7 +16,12 @@
             margin-bottom: 0.5rem;
             background: linear-gradient(90deg, #00a79e, #007bff);
             -webkit-background-clip: text;
+            background-clip: text;
             -webkit-text-fill-color: transparent;
+
+            @media (max-width: 768px) {
+                font-size: 1.8rem;
+            }
         }
 
         p {
@@ -46,6 +55,9 @@
             width: 100%;
             flex-direction: row;
             overflow-x: auto;
+            padding: 0.6rem;
+            gap: 0.4rem;
+            -webkit-overflow-scrolling: touch;
         }
 
         button {
@@ -58,6 +70,8 @@
             color: var(--text-general);
             font-size: 1.4rem;
             transition: all 0.2s ease;
+            min-height: 44px;
+            white-space: nowrap;
 
             &:hover {
                 background: rgba(255, 255, 255, 0.05);
@@ -68,6 +82,11 @@
                 color: #00a79e;
                 font-weight: bold;
                 border-left: 3px solid #00a79e;
+
+                @media (max-width: 768px) {
+                    border-left: none;
+                    border-bottom: 3px solid #00a79e;
+                }
             }
         }
     }

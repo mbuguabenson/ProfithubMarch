@@ -7,6 +7,10 @@
     padding: 2rem;
     font-family: 'Inter', sans-serif;
     
+    @media (max-width: 768px) {
+        padding: 1rem;
+    }
+    
     // Header Section
     .cracker-header {
         display: flex;
@@ -14,6 +18,11 @@
         gap: 1.5rem;
         margin-bottom: 2rem;
         padding: 2rem;
+
+        @media (max-width: 768px) {
+            padding: 1rem;
+            gap: 1rem;
+        }
         background: rgba(255, 255, 255, 0.02);
         border: 1px solid rgba(255, 255, 255, 0.05);
         border-radius: 20px;
@@ -23,6 +32,10 @@
             h1 {
                 font-size: 2.5rem;
                 font-weight: 900;
+
+                @media (max-width: 768px) {
+                    font-size: 1.75rem;
+                }
                 background: linear-gradient(135deg, #a855f7, #ec4899, #f59e0b);
                 background-clip: text;
                 -webkit-background-clip: text;
@@ -66,6 +79,10 @@
                     min-width: 250px;
                     cursor: pointer;
                     transition: all 0.3s ease;
+                    
+                    @media (max-width: 768px) {
+                        min-width: 100%;
+                    }
                     
                     &:hover {
                         border-color: rgba(168, 85, 247, 0.5);
@@ -118,6 +135,12 @@
             gap: 1.5rem;
             flex-wrap: wrap;
             
+            @media (max-width: 480px) {
+                display: grid;
+                grid-template-columns: repeat(2, 1fr);
+                gap: 0.8rem;
+            }
+            
             .stat-card {
                 padding: 1rem 1.5rem;
                 background: rgba(0, 0, 0, 0.3);
@@ -127,6 +150,11 @@
                 flex-direction: column;
                 gap: 0.5rem;
                 min-width: 120px;
+
+                @media (max-width: 480px) {
+                    min-width: unset;
+                    padding: 0.8rem 1rem;
+                }
                 
                 .label {
                     font-size: 0.75rem;
@@ -139,6 +167,10 @@
                     font-size: 1.5rem;
                     font-weight: 700;
                     font-family: 'Roboto Mono', monospace;
+
+                    @media (max-width: 480px) {
+                        font-size: 1.2rem;
+                    }
                     
                     &.digit-display {
                         color: #ff9f00;
@@ -158,6 +190,10 @@
         margin-bottom: 2rem;
         padding: 2rem;
         background: rgba(255, 255, 255, 0.02);
+
+        @media (max-width: 768px) {
+            padding: 1rem;
+        }
         border: 1px solid rgba(255, 255, 255, 0.05);
         border-radius: 20px;
         backdrop-filter: blur(10px);
@@ -207,6 +243,11 @@
             width: 80px;
             transition: all 0.3s ease;
 
+            @media (max-width: 768px) {
+                width: 60px;
+                gap: 0.25rem;
+            }
+
             &.is-now {
                 transform: scale(1.1);
             }
@@ -238,10 +279,20 @@
                 align-items: center;
                 justify-content: center;
 
+                @media (max-width: 768px) {
+                    width: 50px;
+                    height: 50px;
+                }
+
                 svg {
                     position: absolute;
                     top: 0;
                     left: 0;
+
+                    @media (max-width: 768px) {
+                        width: 50px;
+                        height: 50px;
+                    }
                 }
 
                 .digit-center-text {
@@ -255,12 +306,20 @@
                         font-size: 1.5rem;
                         font-weight: 900;
                         line-height: 1;
+
+                        @media (max-width: 768px) {
+                            font-size: 1.1rem;
+                        }
                     }
 
                     .digit-pct {
                         font-size: 0.75rem;
                         font-weight: 700;
                         margin-top: 2px;
+
+                        @media (max-width: 768px) {
+                            font-size: 0.6rem;
+                        }
                     }
                 }
             }
@@ -283,6 +342,10 @@
         margin-bottom: 2rem;
         padding: 2rem;
         background: rgba(255, 255, 255, 0.02);
+
+        @media (max-width: 768px) {
+            padding: 1rem;
+        }
         border: 1px solid rgba(255, 255, 255, 0.05);
         border-radius: 20px;
         backdrop-filter: blur(10px);
@@ -292,6 +355,8 @@
             gap: 1rem;
             margin-bottom: 2rem;
             overflow-x: auto;
+            -webkit-overflow-scrolling: touch;
+            padding-bottom: 4px;
             
             button {
                 padding: 1rem 2rem;
@@ -303,6 +368,7 @@
                 cursor: pointer;
                 transition: all 0.3s ease;
                 white-space: nowrap;
+                min-height: 44px;
                 
                 &:hover {
                     background: rgba(255, 255, 255, 0.1);
@@ -552,6 +618,10 @@
                         gap: 1rem;
                         margin-bottom: 1.5rem;
                         
+                        @media (max-width: 768px) {
+                            grid-template-columns: 1fr;
+                        }
+                        
                         .input-field {
                             display: flex;
                             flex-direction: column;
@@ -639,6 +709,10 @@
                         display: flex;
                         gap: 1rem;
                         
+                        @media (max-width: 768px) {
+                            flex-direction: column;
+                        }
+                        
                         button {
                             flex: 1;
                             padding: 1rem;
@@ -700,6 +774,10 @@
         margin-bottom: 2rem;
         padding: 1.5rem;
         background: rgba(255, 255, 255, 0.02);
+
+        @media (max-width: 768px) {
+            padding: 1rem;
+        }
         border: 1px solid rgba(255, 255, 255, 0.05);
         border-radius: 20px;
         backdrop-filter: blur(10px);

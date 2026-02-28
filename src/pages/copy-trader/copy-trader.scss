@@ -12,6 +12,10 @@
         -apple-system,
         sans-serif;
 
+    @media (max-width: 768px) {
+        padding: 1.2rem;
+    }
+
     &__header {
         margin-bottom: 2.5rem;
 
@@ -24,6 +28,10 @@
             -webkit-text-fill-color: transparent;
             margin-bottom: 0.8rem;
             letter-spacing: -0.5px;
+
+            @media (max-width: 768px) {
+                font-size: 1.6rem;
+            }
 
             .premium-badge {
                 font-size: 0.7rem;
@@ -408,13 +416,16 @@
         .table-container {
             border-radius: 15px;
             overflow: hidden;
+            overflow-x: auto;
             background: rgb(0 0 0 / 10%);
+            -webkit-overflow-scrolling: touch;
         }
 
         .copy-table {
             width: 100%;
             border-collapse: separate;
             border-spacing: 0;
+            min-width: 540px;
 
             th {
                 background: rgb(255 255 255 / 5%);
@@ -425,6 +436,7 @@
                 font-weight: 700;
                 text-transform: uppercase;
                 letter-spacing: 1px;
+                white-space: nowrap;
             }
 
             td {
@@ -433,6 +445,7 @@
                 font-size: 0.95rem;
                 color: #fff;
                 font-family: 'JetBrains Mono', monospace;
+                white-space: nowrap;
             }
 
             .no-data {

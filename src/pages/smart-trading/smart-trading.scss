@@ -391,6 +391,12 @@
         font-weight: 600;
         color: #94a3b8;
 
+        @media (max-width: 768px) {
+            gap: 1rem;
+            padding: 0.8rem 1rem;
+            font-size: 0.8rem;
+        }
+
         .stat-item {
             .profit {
                 color: #4caf50;
@@ -413,6 +419,13 @@
             display: flex;
             align-items: center;
             gap: 0.4rem;
+            min-height: 44px;
+
+            @media (max-width: 768px) {
+                margin-left: 0;
+                width: 100%;
+                justify-content: center;
+            }
 
             &:hover {
                 background: rgba(0, 198, 255, 0.2);
@@ -496,6 +509,10 @@
         justify-content: center;
         padding: 3rem;
 
+        @media (max-width: 768px) {
+            padding: 1.5rem 0;
+        }
+
         .btn-speed-trade {
             padding: 1.4rem 6rem;
             font-size: 1.1rem;
@@ -509,6 +526,14 @@
             transition: all 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275);
             text-transform: uppercase;
             letter-spacing: 2px;
+            min-height: 56px;
+
+            @media (max-width: 768px) {
+                width: 100%;
+                padding: 1.4rem 2rem;
+                font-size: 1rem;
+                letter-spacing: 1.5px;
+            }
 
             &.running {
                 background: linear-gradient(135deg, #11998e 0%, #38ef7d 100%);
