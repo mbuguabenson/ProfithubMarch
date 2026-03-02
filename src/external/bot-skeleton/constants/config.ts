@@ -218,7 +218,7 @@ export const config = () => ({
     TRADE_TYPE_TO_CONTRACT_CATEGORY_MAPPING: {
         callput: ['callput', 'higherlower'],
         asian: ['asians'],
-        digits: ['matchesdiffers', 'evenodd', 'overunder', 'differs', 'matches', 'over', 'under'],
+        digits: ['matchesdiffers', 'evenodd', 'overunder'],
     },
     TRADE_TYPE_CATEGORIES: {
         ...(isMultipliersAvailable() ? { multiplier: ['multiplier'] } : {}),
@@ -226,7 +226,7 @@ export const config = () => ({
         touchnotouch: ['touchnotouch'],
         inout: ['endsinout', 'staysinout'],
         asian: ['asians'],
-        digits: ['matchesdiffers', 'evenodd', 'overunder', 'differs', 'matches', 'over', 'under'],
+        digits: ['matchesdiffers', 'evenodd', 'overunder'],
         reset: ['reset'],
         callputspread: ['callputspread'],
         highlowticks: ['highlowticks'],
@@ -256,7 +256,7 @@ export const config = () => ({
             'runs',
             ...(isMultipliersAvailable() ? ['multiplier'] : []),
         ],
-        non_financial: ['digits', 'overunder', 'evenodd', 'matchesdiffers', 'differs', 'matches', 'over', 'under'],
+        non_financial: ['digits', 'overunder', 'evenodd', 'matchesdiffers'],
         asian: ['asians'],
         reset: ['reset'],
         lookback: ['lookback'],
@@ -274,7 +274,7 @@ export const config = () => ({
     NOT_AVAILABLE_DROPDOWN_OPTIONS: [[localize('Not available'), 'na']],
     NOT_AVAILABLE_DURATIONS: [{ display: localize('Not available'), unit: 'na', min: 0 }],
     BARRIER_TRADE_TYPES: ['higherlower', 'touchnotouch', 'endsinout', 'staysinout', 'callputspread'],
-    PREDICTION_TRADE_TYPES: ['matchesdiffers', 'overunder', 'highlowticks', 'differs', 'matches', 'over', 'under'],
+    PREDICTION_TRADE_TYPES: ['matchesdiffers', 'overunder', 'highlowticks'],
     DIGIT_CATEGORIES: ['digits', 'highlowticks'],
     INDEPEDENT_BLOCKS: ['block_holder', 'tick_analysis', 'loader', 'procedures_defreturn', 'procedures_defnoreturn'],
     bbResult: [
