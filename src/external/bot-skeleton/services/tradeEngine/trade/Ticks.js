@@ -146,13 +146,15 @@ export default Engine =>
             let ticks_stayed_in_list = [];
             return new Promise(resolve => {
                 const subscription = api_base.api.onMessage().subscribe(({ data }) => {
-                    if (data.msg_type === 'proposal') {
+                    if (data.msg_type === 'proposal_open_contract' || data.msg_type === 'proposal') {
                         try {
-                            this.subscription_id_for_accumulators = data.subscription.id;
-                            // this was done because we can multile arrays in the respone and the list comes in reverse order
-                            const stat_list = (data.proposal.contract_details.ticks_stayed_in || []).flat().reverse();
-                            ticks_stayed_in_list = [...stat_list, ...ticks_stayed_in_list];
-                            if (ticks_stayed_in_list.length > 0) resolve(ticks_stayed_in_list);
+                            const contract = data.proposal_open_contract || data.proposal;
+                            if (contract.contract_details) {
+                                this.subscription_id_for_accumulators = data.subscription?.id;
+                                const stat_list = (contract.contract_details.ticks_stayed_in || []).flat().reverse();
+                                ticks_stayed_in_list = [...stat_list, ...ticks_stayed_in_list];
+                                if (ticks_stayed_in_list.length > 0) resolve(ticks_stayed_in_list);
+                            }
                         } catch (error) {
                             globalObserver.emit('Unexpected message type or no proposal found:', error);
                         }
