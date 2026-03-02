@@ -3,19 +3,18 @@ import classNames from 'classnames';
 import { observer } from 'mobx-react-lite';
 import { useStore } from '@/hooks/useStore';
 import {
-    LabelPairedActivityCaptionRegularIcon,
     LabelPairedBellCaptionRegularIcon,
-    LabelPairedBoxCaptionRegularIcon,
+    LabelPairedChartAreaCaptionRegularIcon,
     LabelPairedChartLineCaptionRegularIcon,
     LabelPairedCircleDotCaptionRegularIcon,
+    LabelPairedCircleExclamationCaptionRegularIcon,
     LabelPairedEnvelopeCaptionRegularIcon,
     LabelPairedGearCaptionRegularIcon,
-    LabelPairedHouseCaptionRegularIcon,
-    LabelPairedMoneyCaptionRegularIcon,
-    LabelPairedPuzzlePieceTwoCaptionBoldIcon,
+    LabelPairedGridCaptionRegularIcon,
+    LabelPairedHouseBlankCaptionRegularIcon,
+    LabelPairedMoneyBillCaptionRegularIcon,
     LabelPairedSlidersCaptionRegularIcon,
-    LabelPairedSquareExclamationCaptionRegularIcon,
-    LabelPairedUsersCaptionRegularIcon,
+    LabelPairedUserCaptionRegularIcon,
 } from '@deriv/quill-icons/LabelPaired';
 
 const Sidebar = observer(() => {
@@ -23,9 +22,9 @@ const Sidebar = observer(() => {
     const { active_section, is_sidebar_open, setSection } = admin;
 
     const navItems = [
-        { id: 'dashboard', label: 'Dashboard', icon: LabelPairedHouseCaptionRegularIcon },
-        { id: 'users', label: 'Users', icon: LabelPairedUsersCaptionRegularIcon },
-        { id: 'bots', label: 'Bots Manager', icon: LabelPairedPuzzlePieceTwoCaptionBoldIcon },
+        { id: 'dashboard', label: 'Dashboard', icon: LabelPairedHouseBlankCaptionRegularIcon },
+        { id: 'users', label: 'Users', icon: LabelPairedUserCaptionRegularIcon },
+        { id: 'bots', label: 'Bots Manager', icon: LabelPairedGridCaptionRegularIcon },
         { id: 'strategies', label: 'Strategies', icon: LabelPairedSlidersCaptionRegularIcon },
         { id: 'analytics', label: 'Analytics', icon: LabelPairedChartLineCaptionRegularIcon },
         { id: 'transactions', label: 'Transactions', icon: LabelPairedMoneyCaptionRegularIcon },

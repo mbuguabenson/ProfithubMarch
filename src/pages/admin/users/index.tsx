@@ -3,11 +3,11 @@ import classNames from 'classnames';
 import { observer } from 'mobx-react-lite';
 import {
     LabelPairedArrowDownCaptionRegularIcon,
-    LabelPairedMoneyCaptionRegularIcon,
-    LabelPairedPlusCaptionRegularIcon,
-    LabelPairedSearchCaptionRegularIcon,
-    LabelPairedUserEditCaptionRegularIcon,
-    LabelPairedUserSlashCaptionRegularIcon,
+    LabelPairedCirclePlusCaptionRegularIcon,
+    LabelPairedCircleUserSlashCaptionRegularIcon,
+    LabelPairedMagnifyingGlassPlusCaptionRegularIcon,
+    LabelPairedMoneyBillCaptionRegularIcon,
+    LabelPairedPenCaptionRegularIcon,
 } from '@deriv/quill-icons/LabelPaired';
 
 const UsersManagement = observer(() => {
@@ -48,7 +48,7 @@ const UsersManagement = observer(() => {
                 </div>
                 <div className="flex items-center gap-4">
                     <button className="px-8 py-4 bg-white/5 border border-white/10 rounded-2xl text-[10px] font-black uppercase tracking-[0.2em] hover:bg-white/10 transition-all flex items-center gap-3 group">
-                        <LabelPairedPlusCaptionRegularIcon className="w-4 h-4 text-slate-500 group-hover:text-white" /> PROVISION NEW NODE
+                        <LabelPairedCirclePlusCaptionRegularIcon className="w-4 h-4 text-slate-500 group-hover:text-white" /> PROVISION NEW NODE
                     </button>
                     <button className="px-10 py-4 bg-gradient-to-r from-brand-blue to-cyan-500 rounded-2xl text-[10px] font-black uppercase tracking-[0.2em] text-white shadow-glow-blue hover:scale-105 active:scale-95 transition-all">
                         EXPORT LEDGER
@@ -70,7 +70,7 @@ const UsersManagement = observer(() => {
                                 onChange={(e) => setSearchTerm(e.target.value)}
                                 className="w-full bg-white/5 border border-white/10 group-hover/input:border-white/20 focus:border-brand-blue/50 rounded-2xl py-4 pl-14 pr-6 text-[10px] font-black tracking-[0.2em] text-white placeholder:text-slate-600 outline-none transition-all font-mono"
                             />
-                            <LabelPairedSearchCaptionRegularIcon className="absolute left-5 top-1/2 -translate-y-1/2 w-5 h-5 text-slate-500 group-hover/input:text-brand-blue transition-colors" />
+                            <LabelPairedMagnifyingGlassPlusCaptionRegularIcon className="absolute left-5 top-1/2 -translate-y-1/2 w-5 h-5 text-slate-500 group-hover/input:text-brand-blue transition-colors" />
                         </div>
                         
                         <div className="relative min-w-[200px] group/select">
@@ -153,9 +153,9 @@ const UsersManagement = observer(() => {
                                     <td className="px-8 py-7">
                                         <div className="flex items-center justify-center gap-3">
                                             {[
-                                                { icon: LabelPairedUserEditCaptionRegularIcon, color: 'blue', label: 'E-CR' },
-                                                { icon: LabelPairedUserSlashCaptionRegularIcon, color: 'rose', label: 'S-CR' },
-                                                { icon: LabelPairedMoneyCaptionRegularIcon, color: 'emerald', label: 'F-CR' }
+                                                { icon: LabelPairedPenCaptionRegularIcon, color: 'blue', label: 'E-CR' },
+                                                { icon: LabelPairedCircleUserSlashCaptionRegularIcon, color: 'rose', label: 'S-CR' },
+                                                { icon: LabelPairedMoneyBillCaptionRegularIcon, color: 'emerald', label: 'F-CR' }
                                             ].map((action, i) => (
                                                 <button key={i} className={classNames(
                                                     "w-10 h-10 rounded-xl flex items-center justify-center border transition-all duration-300 group/btn",
@@ -177,7 +177,7 @@ const UsersManagement = observer(() => {
                     <div className="p-32 text-center relative overflow-hidden">
                         <div className="absolute inset-0 bg-brand-blue/2 blur-[100px] pointer-events-none"></div>
                         <div className="relative z-10">
-                            <LabelPairedSearchCaptionRegularIcon className="w-20 h-20 text-slate-800 mx-auto mb-6 opacity-30 animate-pulse" />
+                            <LabelPairedMagnifyingGlassPlusCaptionRegularIcon className="w-20 h-20 text-slate-800 mx-auto mb-6 opacity-30 animate-pulse" />
                             <h3 className="text-3xl font-black text-white mb-2 italic tracking-tighter uppercase">No Entity Matches Detected</h3>
                             <p className="text-slate-600 text-xs font-mono font-bold uppercase tracking-[0.4em]">Adjust identity filters or cluster parameters</p>
                         </div>

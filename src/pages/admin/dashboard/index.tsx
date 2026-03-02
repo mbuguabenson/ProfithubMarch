@@ -17,12 +17,12 @@ import {
 import { NameType, ValueType } from 'recharts/types/component/DefaultTooltipContent';
 import { useStore } from '@/hooks/useStore';
 import {
-    LabelPairedActivityCaptionRegularIcon,
     LabelPairedArrowDownCaptionRegularIcon,
     LabelPairedArrowUpCaptionRegularIcon,
+    LabelPairedChartAreaCaptionRegularIcon,
     LabelPairedChartLineCaptionRegularIcon,
-    LabelPairedMoneyCaptionRegularIcon,
-    LabelPairedUsersCaptionRegularIcon,
+    LabelPairedMoneyBillCaptionRegularIcon,
+    LabelPairedUserCaptionRegularIcon,
 } from '@deriv/quill-icons/LabelPaired';
 
 const CustomTooltip = ({ active, payload, label }: TooltipProps<ValueType, NameType>) => {
@@ -126,7 +126,7 @@ const AdminDashboard = observer(() => {
                 </div>
                 <div className="flex items-center gap-4">
                     <button className="px-6 py-4 bg-white/5 border border-white/10 rounded-2xl text-[10px] font-black uppercase tracking-[0.2em] hover:bg-white/10 transition-all flex items-center gap-3 group">
-                        <LabelPairedActivityCaptionRegularIcon className="w-4 h-4 text-slate-500 group-hover:text-white" /> EXPORT SYSTEM LEDGER
+                        <LabelPairedChartAreaCaptionRegularIcon className="w-4 h-4 text-slate-500 group-hover:text-white" /> EXPORT SYSTEM LEDGER
                     </button>
                     <button className="px-10 py-4 bg-gradient-to-r from-brand-blue to-cyan-500 rounded-2xl text-[10px] font-black uppercase tracking-[0.2em] text-white shadow-glow-blue hover:scale-105 active:scale-95 transition-all">
                         SYNC NODES
@@ -141,7 +141,7 @@ const AdminDashboard = observer(() => {
                     value={admin.total_deposits} 
                     trend="up" 
                     percentage="12.5"
-                    icon={LabelPairedMoneyCaptionRegularIcon} 
+                    icon={LabelPairedMoneyBillCaptionRegularIcon} 
                     color="blue"
                     detail="+2.1% Higher than last month"
                 />
@@ -150,7 +150,7 @@ const AdminDashboard = observer(() => {
                     value={admin.active_users} 
                     trend="up" 
                     percentage="8.2"
-                    icon={LabelPairedUsersCaptionRegularIcon} 
+                    icon={LabelPairedUserCaptionRegularIcon} 
                     color="cyan"
                     detail="5 new nodes authorized today"
                 />

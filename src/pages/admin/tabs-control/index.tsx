@@ -3,27 +3,27 @@ import classNames from 'classnames';
 import { observer } from 'mobx-react-lite';
 import { useStore } from '@/hooks/useStore';
 import {
-    LabelPairedActivityCaptionRegularIcon,
-    LabelPairedBoxCaptionRegularIcon,
+    LabelPairedChartAreaCaptionRegularIcon,
     LabelPairedChartLineCaptionRegularIcon,
     LabelPairedCircleInfoCaptionRegularIcon,
+    LabelPairedComputerCaptionRegularIcon,
     LabelPairedCopyCaptionRegularIcon,
     LabelPairedGearCaptionRegularIcon,
+    LabelPairedGridCaptionRegularIcon,
     LabelPairedLightbulbCaptionRegularIcon,
-    LabelPairedTerminalCaptionRegularIcon,
 } from '@deriv/quill-icons/LabelPaired';
 
 const TabsControl = observer(() => {
     const { admin } = useStore();
 
     const tabsToControl = [
-        { key: 'dashboard', label: 'Dashboard Main', group: 'Core', icon: LabelPairedActivityCaptionRegularIcon },
-        { key: 'bot_builder', label: 'Bot Builder', group: 'Core', icon: LabelPairedBoxCaptionRegularIcon },
+        { key: 'dashboard', label: 'Dashboard Main', group: 'Core', icon: LabelPairedChartAreaCaptionRegularIcon },
+        { key: 'bot_builder', label: 'Bot Builder', group: 'Core', icon: LabelPairedGridCaptionRegularIcon },
         { key: 'charts', label: 'Trading Charts', group: 'Trading', icon: LabelPairedChartLineCaptionRegularIcon },
         { key: 'analysis_tool', label: 'Analysis Tool', group: 'Analysis', icon: LabelPairedLightbulbCaptionRegularIcon },
-        { key: 'trading_tools', label: 'Trading Tools', group: 'Trading', icon: LabelPairedTerminalCaptionRegularIcon },
+        { key: 'trading_tools', label: 'Trading Tools', group: 'Trading', icon: LabelPairedComputerCaptionRegularIcon },
         { key: 'copy_trading', label: 'Copy Trading', group: 'Social', icon: LabelPairedCopyCaptionRegularIcon },
-        { key: 'strategies', label: 'Strategy Hub', group: 'Content', icon: LabelPairedBoxCaptionRegularIcon },
+        { key: 'strategies', label: 'Strategy Hub', group: 'Content', icon: LabelPairedGridCaptionRegularIcon },
         { key: 'settings', label: 'User Settings', group: 'System', icon: LabelPairedGearCaptionRegularIcon },
         { key: 'tutorials', label: 'Video Tutorials', group: 'System', icon: LabelPairedCircleInfoCaptionRegularIcon },
     ] as const;
