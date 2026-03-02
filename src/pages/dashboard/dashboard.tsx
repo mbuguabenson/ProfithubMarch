@@ -5,6 +5,7 @@ import Text from '@/components/shared_ui/text';
 import { useStore } from '@/hooks/useStore';
 import { localize } from '@deriv-com/translations';
 import { useDevice } from '@deriv-com/ui';
+import { DBOT_TABS } from '@/constants/bot-contents';
 import OnboardTourHandler from '../tutorials/dbot-tours/onboarding-tour';
 import DashboardBotList from './bot-list/dashboard-bot-list';
 import Announcements from './announcements';
@@ -61,7 +62,7 @@ const DashboardComponent = observer(({ handleTabChange }: TMobileIconGuide) => {
                                 className='hero-learn-button'
                                 has_effect
                                 text={localize('Get Started')}
-                                onClick={() => handleTabChange(17)} // Redirect to Strategies tab
+                                onClick={() => handleTabChange(DBOT_TABS.STRATEGIES)} // Redirect to Strategies tab
                                 tertiary
                                 large={isDesktop}
                                 medium={!isDesktop}

@@ -99,18 +99,14 @@ export default class DigitCrackerStore {
                 active_symbols?: Record<string, unknown>[];
             };
             if (response.active_symbols) {
-                const filtered = response.active_symbols.filter(
-                    (s: Record<string, unknown>) => s.market === 'synthetic_index'
+                const grouped = Object.values(
+                    response.active_symbols.reduce((acc: any, s: any) => {
+                        const market = s.market_display_name || s.market;
+                        if (!acc[market]) acc[market] = { group: market, items: [] };
+                        acc[market].items.push({ value: s.symbol, label: s.display_name });
+                        return acc;
+                    }, {})
                 );
-                const grouped = [
-                    {
-                        group: 'Synthetic Indices',
-                        items: filtered.map((s: Record<string, unknown>) => ({
-                            value: s.symbol as string,
-                            label: s.display_name as string,
-                        })),
-                    },
-                ];
                 runInAction(() => {
                     this.markets = grouped;
                 });

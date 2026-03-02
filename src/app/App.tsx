@@ -15,6 +15,8 @@ import './app-root.scss';
 
 const Layout = lazy(() => import('../components/layout'));
 const AppRoot = lazy(() => import('./app-root'));
+const AccountDashboard = lazy(() => import('@/pages/account-dashboard'));
+const AdminLayout = lazy(() => import('@/pages/admin/layout/admin-layout'));
 
 const { TRANSLATIONS_CDN_URL, R2_PROJECT_NAME, CROWDIN_BRANCH_NAME } = process.env;
 // Only use CDN URL if all required variables are present and not empty
@@ -52,6 +54,8 @@ const router = createBrowserRouter(
         >
             {/* All child routes will be passed as children to Layout */}
             <Route index element={<AppRoot />} />
+            <Route path='account' element={<AccountDashboard />} />
+            <Route path='admin' element={<AdminLayout />} />
             <Route path='endpoint' element={<Endpoint />} />
             <Route path='callback' element={<CallbackPage />} />
         </Route>

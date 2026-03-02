@@ -290,10 +290,8 @@ export class DigitTradeEngine {
     ) => {
         let prediction = config.prediction;
         if (percentages.under > 55 && this.consecutive_under >= 1) {
-            if (prediction < 6) prediction = 8;
             this.executeTrade('DIGITUNDER', prediction, config, symbol, currency);
         } else if (percentages.over > 55 && this.consecutive_over >= 1) {
-            if (prediction > 3) prediction = 1;
             this.executeTrade('DIGITOVER', prediction, config, symbol, currency);
         }
     };

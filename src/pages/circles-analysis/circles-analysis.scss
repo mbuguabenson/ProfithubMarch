@@ -296,16 +296,12 @@
 
     // --- Content Section Grid ---
     .circles-analysis__content {
-        display: grid;
-        grid-template-columns: 1fr 2fr;
+        display: flex;
+        flex-direction: column;
         gap: 2.4rem;
         width: 100%;
-        max-width: 1600px;
+        max-width: 1200px;
         margin: 0 auto;
-
-        @media (max-width: 1400px) {
-            grid-template-columns: 1fr;
-        }
     }
 
     .analysis-sections-grid {

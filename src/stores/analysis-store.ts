@@ -342,8 +342,8 @@ export default class AnalysisStore {
                 const groups: Record<string, { group: string; items: { value: string; label: string }[] }> = {};
 
                 response.active_symbols.forEach((s: Record<string, unknown>) => {
-                    // Only show synthetic_index markets
-                    if (s.is_trading_suspended || s.market !== 'synthetic_index') return;
+                    // Show all trading markets
+                    if (s.is_trading_suspended) return;
 
                     const market_name = (s.market_display_name as string) || (s.market as string);
                     if (!groups[market_name]) groups[market_name] = { group: market_name, items: [] };

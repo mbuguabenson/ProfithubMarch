@@ -1,5 +1,6 @@
-import { useState } from 'react';
+import { Suspense, lazy, useState } from 'react';
 import { observer } from 'mobx-react-lite';
+import ChunkLoader from '@/components/loader/chunk-loader';
 import AdvancedOverUnderTab from '../smart-trading/components/advanced-over-under-tab';
 import DiffersTab from '../smart-trading/components/differs-tab';
 import EvenOddTab from '../smart-trading/components/even-odd-tab';
@@ -7,13 +8,21 @@ import MatchesTab from '../smart-trading/components/matches-tab';
 import OverUnderTab from '../smart-trading/components/over-under-tab';
 import './analysis-tool.scss';
 
-type TAnalysisSubTab = 'even_odd' | 'over_under' | 'adv_over_under' | 'differs' | 'matches';
+const EasyTool = lazy(() => import('../easy-tool/index'));
+
+type TAnalysisSubTab = 'easy_tool' | 'even_odd' | 'over_under' | 'adv_over_under' | 'differs' | 'matches';
 
 const AnalysisTool = observer(() => {
-    const [active_subtab, setActiveSubtab] = useState<TAnalysisSubTab>('even_odd');
+    const [active_subtab, setActiveSubtab] = useState<TAnalysisSubTab>('easy_tool');
 
     const renderActiveTab = () => {
         switch (active_subtab) {
+            case 'easy_tool':
+                return (
+                    <Suspense fallback={<ChunkLoader message='Loading Easy Tool...' />}>
+                        <EasyTool />
+                    </Suspense>
+                );
             case 'even_odd':
                 return <EvenOddTab />;
             case 'over_under':
@@ -25,7 +34,11 @@ const AnalysisTool = observer(() => {
             case 'matches':
                 return <MatchesTab />;
             default:
-                return <EvenOddTab />;
+                return (
+                    <Suspense fallback={<ChunkLoader message='Loading Easy Tool...' />}>
+                        <EasyTool />
+                    </Suspense>
+                );
         }
     };
 
@@ -37,6 +50,12 @@ const AnalysisTool = observer(() => {
             </div>
 
             <div className='analysis-tool__tabs'>
+                <button
+                    className={active_subtab === 'easy_tool' ? 'active' : ''}
+                    onClick={() => setActiveSubtab('easy_tool')}
+                >
+                    Easy Tool
+                </button>
                 <button
                     className={active_subtab === 'even_odd' ? 'active' : ''}
                     onClick={() => setActiveSubtab('even_odd')}
@@ -75,3 +94,5 @@ const AnalysisTool = observer(() => {
 });
 
 export default AnalysisTool;
+
+

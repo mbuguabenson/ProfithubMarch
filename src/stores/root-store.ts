@@ -26,6 +26,7 @@ import TransactionsStore from './transactions-store';
 import UiStore from './ui-store';
 import SmartAutoStore from './smart-auto-store';
 import DigitCrackerStore from './digit-cracker-store';
+import AdminStore from './admin-store';
 
 // TODO: need to write types for the individual classes and convert them to ts
 export default class RootStore {
@@ -51,6 +52,7 @@ export default class RootStore {
     public smart_trading: SmartTradingStore;
     public smart_auto: SmartAutoStore;
     public digit_cracker: DigitCrackerStore;
+    public admin: AdminStore;
 
     public chart_store: ChartStore;
     public blockly_store: BlocklyStore;
@@ -101,6 +103,7 @@ export default class RootStore {
         this.smart_trading = new SmartTradingStore(this);
         this.smart_auto = new SmartAutoStore(this);
         this.digit_cracker = new DigitCrackerStore(this);
+        this.admin = new AdminStore();
 
         // need to be at last for dependency
         this.chart_store = new ChartStore(this);

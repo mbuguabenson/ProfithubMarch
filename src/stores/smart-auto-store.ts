@@ -359,7 +359,6 @@ export default class SmartAutoStore {
         const percentThreshold = config.trigger_percentage || 55;
         const reqConsecutive = config.consecutive_ticks || 2;
         const targetPrediction = config.target_prediction || 'EVEN';
-
         let triggerMatched = false;
 
         if (config.entry_pattern === 'PATTERN_2') {
@@ -744,6 +743,7 @@ export default class SmartAutoStore {
             const stake = this.calculateStake(config);
             this.addLog(`Buying ${contract_type} for $${stake.toFixed(2)}`, 'trade');
 
+            const symbol = config.symbol || this.root_store.common.symbol || 'R_100';
             const proposal = (await apiBaseInstance.api.send({
                 proposal: 1,
                 amount: stake,
@@ -752,7 +752,7 @@ export default class SmartAutoStore {
                 currency: this.root_store.client.currency || 'USD',
                 duration: config.ticks,
                 duration_unit: 't',
-                underlying_symbol: this.root_store.analysis.symbol,
+                symbol: symbol,
                 ...(contract_type.includes('DIGIT')
                     ? contract_type.includes('EVEN') || contract_type.includes('ODD')
                         ? {}

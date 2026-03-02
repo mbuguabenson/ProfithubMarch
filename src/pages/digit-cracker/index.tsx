@@ -502,19 +502,20 @@ const DigitCracker = observer(() => {
                                     {percentages.under > 55 && (
                                         <div className='power-item suggestion'>
                                             <span className='label'>💡 Best Prediction (Trade UNDER):</span>
-                                            <div className='prediction-buttons' style={{ display: 'flex', gap: '0.5rem', marginTop: '0.5rem' }}>
-                                                {[6, 7, 8, 9].map(p => (
+                                            <div className='prediction-buttons' style={{ display: 'flex', gap: '0.5rem', marginTop: '0.5rem', flexWrap: 'wrap' }}>
+                                                {[0, 1, 2, 3, 4, 5, 6, 7, 8, 9].map(p => (
                                                     <button 
                                                         key={p} 
-                                                        className={`pred-btn ${trade_engine.over_under_config.prediction === p ? 'active' : ''}`}
+                                                        className={`pred-btn ${trade_engine.over_under_config.prediction === p ? 'active' : ''} ${[6, 7, 8, 9].includes(p) ? 'suggested' : ''}`}
                                                         style={{
-                                                            padding: '0.5rem 1rem',
-                                                            borderRadius: '8px',
-                                                            background: trade_engine.over_under_config.prediction === p ? '#10b981' : '#1f2937',
+                                                            padding: '0.4rem 0.8rem',
+                                                            borderRadius: '6px',
+                                                            background: trade_engine.over_under_config.prediction === p ? '#10b981' : ([6, 7, 8, 9].includes(p) ? '#374151' : '#1f2937'),
                                                             color: '#fff',
-                                                            border: 'none',
+                                                            border: [6, 7, 8, 9].includes(p) ? '1px solid #10b981' : 'none',
                                                             cursor: 'pointer',
-                                                            fontWeight: 'bold'
+                                                            fontWeight: 'bold',
+                                                            fontSize: '0.85rem'
                                                         }}
                                                         onClick={() => trade_engine.updateConfig('over_under', 'prediction', p)}
                                                     >
@@ -527,19 +528,20 @@ const DigitCracker = observer(() => {
                                     {percentages.over > 55 && (
                                         <div className='power-item suggestion'>
                                             <span className='label'>💡 Best Prediction (Trade OVER):</span>
-                                            <div className='prediction-buttons' style={{ display: 'flex', gap: '0.5rem', marginTop: '0.5rem' }}>
-                                                {[0, 1, 2, 3].map(p => (
+                                            <div className='prediction-buttons' style={{ display: 'flex', gap: '0.5rem', marginTop: '0.5rem', flexWrap: 'wrap' }}>
+                                                {[0, 1, 2, 3, 4, 5, 6, 7, 8, 9].map(p => (
                                                     <button 
                                                         key={p} 
-                                                        className={`pred-btn ${trade_engine.over_under_config.prediction === p ? 'active' : ''}`}
+                                                        className={`pred-btn ${trade_engine.over_under_config.prediction === p ? 'active' : ''} ${[0, 1, 2, 3].includes(p) ? 'suggested' : ''}`}
                                                         style={{
-                                                            padding: '0.5rem 1rem',
-                                                            borderRadius: '8px',
-                                                            background: trade_engine.over_under_config.prediction === p ? '#10b981' : '#1f2937',
+                                                            padding: '0.4rem 0.8rem',
+                                                            borderRadius: '6px',
+                                                            background: trade_engine.over_under_config.prediction === p ? '#10b981' : ([0, 1, 2, 3].includes(p) ? '#374151' : '#1f2937'),
                                                             color: '#fff',
-                                                            border: 'none',
+                                                            border: [0, 1, 2, 3].includes(p) ? '1px solid #10b981' : 'none',
                                                             cursor: 'pointer',
-                                                            fontWeight: 'bold'
+                                                            fontWeight: 'bold',
+                                                            fontSize: '0.85rem'
                                                         }}
                                                         onClick={() => trade_engine.updateConfig('over_under', 'prediction', p)}
                                                     >

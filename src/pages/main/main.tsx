@@ -20,10 +20,11 @@ import useTMB from '@/hooks/useTMB';
 import {
     LabelPairedChartLineCaptionRegularIcon,
     LabelPairedCopyCaptionRegularIcon,
+    LabelPairedGearCaptionRegularIcon,
+    LabelPairedGraduationCapCaptionRegularIcon,
     LabelPairedLightbulbCaptionRegularIcon,
     LabelPairedObjectsColumnCaptionRegularIcon,
     LabelPairedPuzzlePieceTwoCaptionBoldIcon,
-    LabelPairedSignalCaptionRegularIcon,
     LabelPairedSlidersCaptionRegularIcon,
 } from '@deriv/quill-icons/LabelPaired';
 import { Localize, localize } from '@deriv-com/translations';
@@ -36,23 +37,63 @@ import './main.scss';
 
 const ChartWrapper = lazy(() => import('../chart/chart-wrapper'));
 
-// const Bots = lazy(() => import('../bots'));
 const CopyTrading = lazy(() => import('../copy-trader'));
-const SignalsTab = lazy(() => import('../signals/signals-tab'));
-const FreeBotsTab = lazy(() => import('../free-bots/free-bots-tab'));
-const EasyTool = lazy(() => import('../easy-tool/index'));
-const Strategies = lazy(() => import('../strategies/index'));
 const AnalysisTool = lazy(() => import('../analysis-tool/index'));
-
 const Tutorials = lazy(() => import('../tutorials/tutorials'));
 const SmartAuto24 = lazy(() => import('../circles-analysis/index'));
 const DigitCracker = lazy(() => import('../digit-cracker/index'));
 const Settings = lazy(() => import('../settings/index'));
-// const DTrader = lazy(() => import('../dtrader/index')); // Removed as per request
+const Strategies = lazy(() => import('../strategies/index'));
+
+/** Combined Trading Tools tab: SmartAuto24 + DigitCracker side-by-side sub-tabs */
+const TradingTools = () => {
+    const [activeTab, setActiveTab] = React.useState<'smartauto' | 'digitcracker'>('smartauto');
+    return (
+        <div style={{ display: 'flex', flexDirection: 'column', height: '100%' }}>
+            <div style={{ display: 'flex', gap: '8px', padding: '12px 16px', background: 'var(--general-section-1)', borderBottom: '1px solid var(--general-section-2)' }}>
+                <button
+                    onClick={() => setActiveTab('smartauto')}
+                    style={{
+                        padding: '8px 20px',
+                        borderRadius: '20px',
+                        border: 'none',
+                        cursor: 'pointer',
+                        fontWeight: 600,
+                        background: activeTab === 'smartauto' ? 'var(--brand-red-coral)' : 'var(--general-section-2)',
+                        color: activeTab === 'smartauto' ? '#fff' : 'var(--text-general)',
+                        transition: 'all 0.2s',
+                    }}
+                >
+                    Smart Auto 24
+                </button>
+                <button
+                    onClick={() => setActiveTab('digitcracker')}
+                    style={{
+                        padding: '8px 20px',
+                        borderRadius: '20px',
+                        border: 'none',
+                        cursor: 'pointer',
+                        fontWeight: 600,
+                        background: activeTab === 'digitcracker' ? 'var(--brand-red-coral)' : 'var(--general-section-2)',
+                        color: activeTab === 'digitcracker' ? '#fff' : 'var(--text-general)',
+                        transition: 'all 0.2s',
+                    }}
+                >
+                    Digit Cracker
+                </button>
+            </div>
+            <div style={{ flex: 1, overflow: 'auto' }}>
+                <Suspense fallback={<ChunkLoader message={localize('Loading...')} />}>
+                    {activeTab === 'smartauto' ? <SmartAuto24 /> : <DigitCracker />}
+                </Suspense>
+            </div>
+        </div>
+    );
+};
 
 const AppWrapper = observer(() => {
     const { connectionStatus } = useApiBase();
-    const { dashboard, load_modal, run_panel, quick_strategy, summary_card } = useStore();
+    const { admin, dashboard, load_modal, run_panel, quick_strategy, summary_card } = useStore();
     const {
         active_tab,
         active_tour,
@@ -84,16 +125,12 @@ const AppWrapper = observer(() => {
         'dashboard',
         'bot_builder',
         'chart',
-        'easy_tool',
-        'free_bots',
-        'signals',
         'analysis_tool',
+        'trading_tools',
         'copy_trading',
         'strategies',
-        'tutorials',
-        'smart_auto',
-        'digit_cracker',
         'settings',
+        'tutorials',
     ];
     const { isDesktop } = useDevice();
     const location = useLocation();
@@ -308,248 +345,204 @@ const AppWrapper = observer(() => {
                             history={historyShim as React.ComponentProps<typeof Tabs>['history']}
                             is_scrollable
                         >
-                            <div
-                                label={
-                                    <div className='main__tabs-label'>
-                                        <LabelPairedObjectsColumnCaptionRegularIcon
-                                            height='20px'
-                                            width='20px'
-                                            fill='var(--text-general)'
-                                        />
-                                        <Localize i18n_default_text='Dashboard' />
-                                    </div>
-                                }
-                                id='id-dbot-dashboard'
-                            >
-                                <Dashboard handleTabChange={handleTabChange} />
-                            </div>
-                            <div
-                                label={
-                                    <div className='main__tabs-label'>
-                                        <LabelPairedPuzzlePieceTwoCaptionBoldIcon
-                                            height='20px'
-                                            width='20px'
-                                            fill='var(--text-general)'
-                                        />
-                                        <Localize i18n_default_text='Bot Builder' />
-                                    </div>
-                                }
-                                id='id-bot-builder'
-                            />
-                            <div
-                                label={
-                                    <div className='main__tabs-label'>
-                                        <LabelPairedChartLineCaptionRegularIcon
-                                            height='20px'
-                                            width='20px'
-                                            fill='var(--text-general)'
-                                        />
-                                        <Localize i18n_default_text='Charts' />
-                                    </div>
-                                }
-                                id={
-                                    is_chart_modal_visible || is_trading_view_modal_visible
-                                        ? 'id-charts--disabled'
-                                        : 'id-charts'
-                                }
-                            >
-                                <Suspense
-                                    fallback={<ChunkLoader message={localize('Please wait, loading chart...')} />}
+                            {/* Tab 0: Dashboard */}
+                            {admin.visible_tabs.dashboard && (
+                                <div
+                                    label={
+                                        <div className='main__tabs-label'>
+                                            <LabelPairedObjectsColumnCaptionRegularIcon
+                                                height='20px'
+                                                width='20px'
+                                                fill='var(--text-general)'
+                                            />
+                                            <Localize i18n_default_text='Dashboard' />
+                                        </div>
+                                    }
+                                    id='id-dbot-dashboard'
                                 >
-                                    <ChartWrapper show_digits_stats={false} />
-                                </Suspense>
-                            </div>
-                            <div
-                                label={
-                                    <div className='main__tabs-label'>
-                                        <LabelPairedLightbulbCaptionRegularIcon
-                                            height='20px'
-                                            width='20px'
-                                            fill='var(--text-general)'
-                                        />
-                                        <Localize i18n_default_text='Easy Tool' />
-                                    </div>
-                                }
-                                id='id-easy-tool'
-                            >
-                                <PageContentWrapper>
-                                    <Suspense fallback={<ChunkLoader message={localize('Loading Easy Tool...')} />}>
-                                        <EasyTool />
-                                    </Suspense>
-                                </PageContentWrapper>
-                            </div>
-                            <div
-                                label={
-                                    <div className='main__tabs-label'>
-                                        <LabelPairedLightbulbCaptionRegularIcon
-                                            height='20px'
-                                            width='20px'
-                                            fill='var(--text-general)'
-                                        />
-                                        <Localize i18n_default_text='Free Bots' />
-                                    </div>
-                                }
-                                id='id-free-bots'
-                            >
-                                <PageContentWrapper>
-                                    <Suspense fallback={<ChunkLoader message={localize('Loading...')} />}>
-                                        <FreeBotsTab />
-                                    </Suspense>
-                                </PageContentWrapper>
-                            </div>
-                            <div
-                                label={
-                                    <div className='main__tabs-label'>
-                                        <LabelPairedSignalCaptionRegularIcon
-                                            height='20px'
-                                            width='20px'
-                                            fill='var(--text-general)'
-                                        />
-                                        <Localize i18n_default_text='Signals' />
-                                    </div>
-                                }
-                                id='id-signals'
-                            >
-                                <PageContentWrapper>
-                                    <Suspense fallback={<ChunkLoader message={localize('Loading...')} />}>
-                                        <SignalsTab />
-                                    </Suspense>
-                                </PageContentWrapper>
-                            </div>
-                            <div
-                                label={
-                                    <div className='main__tabs-label'>
-                                        <LabelPairedSlidersCaptionRegularIcon
-                                            height='20px'
-                                            width='20px'
-                                            fill='var(--text-general)'
-                                        />
-                                        <Localize i18n_default_text='Analysis Tool' />
-                                    </div>
-                                }
-                                id='id-analysis-tool'
-                            >
-                                <PageContentWrapper>
-                                    <Suspense fallback={<ChunkLoader message={localize('Loading...')} />}>
-                                        <AnalysisTool />
-                                    </Suspense>
-                                </PageContentWrapper>
-                            </div>
-                            <div
-                                label={
-                                    <div className='main__tabs-label'>
-                                        <LabelPairedCopyCaptionRegularIcon
-                                            height='20px'
-                                            width='20px'
-                                            fill='var(--text-general)'
-                                        />
-                                        <Localize i18n_default_text='Copy Trading' />
-                                    </div>
-                                }
-                                id='id-copy-trading'
-                            >
-                                <PageContentWrapper>
-                                    <Suspense fallback={<ChunkLoader message={localize('Loading...')} />}>
-                                        <CopyTrading />
-                                    </Suspense>
-                                </PageContentWrapper>
-                            </div>
-                            <div
-                                label={
-                                    <div className='main__tabs-label'>
-                                        <LabelPairedLightbulbCaptionRegularIcon
-                                            height='20px'
-                                            width='20px'
-                                            fill='var(--text-general)'
-                                        />
-                                        <Localize i18n_default_text='Strategies' />
-                                    </div>
-                                }
-                                id='id-strategies'
-                            >
-                                <PageContentWrapper>
-                                    <Suspense fallback={<ChunkLoader message={localize('Loading Strategies...')} />}>
-                                        <Strategies />
-                                    </Suspense>
-                                </PageContentWrapper>
-                            </div>
+                                    <Dashboard handleTabChange={handleTabChange} />
+                                </div>
+                            )}
 
-                            <div
-                                label={
-                                    <div className='main__tabs-label'>
-                                        <LabelPairedLightbulbCaptionRegularIcon
-                                            height='20px'
-                                            width='20px'
-                                            fill='var(--text-general)'
-                                        />
-                                        <Localize i18n_default_text='Tutorials' />
-                                    </div>
-                                }
-                                id='id-tutorials'
-                            >
-                                <PageContentWrapper>
-                                    <Suspense fallback={<ChunkLoader message={localize('Loading...')} />}>
-                                        <Tutorials />
+                            {/* Tab 1: Bot Builder */}
+                            {admin.visible_tabs.bot_builder && (
+                                <div
+                                    label={
+                                        <div className='main__tabs-label'>
+                                            <LabelPairedPuzzlePieceTwoCaptionBoldIcon
+                                                height='20px'
+                                                width='20px'
+                                                fill='var(--text-general)'
+                                            />
+                                            <Localize i18n_default_text='Bot Builder' />
+                                        </div>
+                                    }
+                                    id='id-bot-builder'
+                                />
+                            )}
+
+                            {/* Tab 2: Charts */}
+                            {admin.visible_tabs.charts && (
+                                <div
+                                    label={
+                                        <div className='main__tabs-label'>
+                                            <LabelPairedChartLineCaptionRegularIcon
+                                                height='20px'
+                                                width='20px'
+                                                fill='var(--text-general)'
+                                            />
+                                            <Localize i18n_default_text='Charts' />
+                                        </div>
+                                    }
+                                    id={
+                                        is_chart_modal_visible || is_trading_view_modal_visible
+                                            ? 'id-charts--disabled'
+                                            : 'id-charts'
+                                    }
+                                >
+                                    <Suspense
+                                        fallback={<ChunkLoader message={localize('Please wait, loading chart...')} />}
+                                    >
+                                        <ChartWrapper show_digits_stats={false} />
                                     </Suspense>
-                                </PageContentWrapper>
-                            </div>
-                            <div
-                                label={
-                                    <div className='main__tabs-label'>
-                                        <LabelPairedLightbulbCaptionRegularIcon
-                                            height='20px'
-                                            width='20px'
-                                            fill='var(--text-general)'
-                                        />
-                                        <Localize i18n_default_text='Smart Auto' />
-                                    </div>
-                                }
-                                id='id-smart-auto'
-                            >
-                                <PageContentWrapper>
-                                    <Suspense fallback={<ChunkLoader message={localize('Loading...')} />}>
-                                        <SmartAuto24 />
-                                    </Suspense>
-                                </PageContentWrapper>
-                            </div>
-                            <div
-                                label={
-                                    <div className='main__tabs-label'>
-                                        <LabelPairedSlidersCaptionRegularIcon
-                                            height='20px'
-                                            width='20px'
-                                            fill='var(--text-general)'
-                                        />
-                                        <Localize i18n_default_text='Digit Cracker' />
-                                    </div>
-                                }
-                                id='id-digit-cracker'
-                            >
-                                <PageContentWrapper>
-                                    <Suspense fallback={<ChunkLoader message={localize('Loading Digit Cracker...')} />}>
-                                        <DigitCracker />
-                                    </Suspense>
-                                </PageContentWrapper>
-                            </div>
-                            <div
-                                label={
-                                    <div className='main__tabs-label'>
-                                        <LabelPairedSlidersCaptionRegularIcon
-                                            height='20px'
-                                            width='20px'
-                                            fill='var(--text-general)'
-                                        />
-                                        <Localize i18n_default_text='Settings' />
-                                    </div>
-                                }
-                                id='id-settings'
-                            >
-                                <PageContentWrapper>
-                                    <Suspense fallback={<ChunkLoader message={localize('Loading Settings...')} />}>
-                                        <Settings />
-                                    </Suspense>
-                                </PageContentWrapper>
-                            </div>
+                                </div>
+                            )}
+
+                            {/* Tab 3: Analysis Tool */}
+                            {admin.visible_tabs.analysis_tool && (
+                                <div
+                                    label={
+                                        <div className='main__tabs-label'>
+                                            <LabelPairedSlidersCaptionRegularIcon
+                                                height='20px'
+                                                width='20px'
+                                                fill='var(--text-general)'
+                                            />
+                                            <Localize i18n_default_text='Analysis Tool' />
+                                        </div>
+                                    }
+                                    id='id-analysis-tool'
+                                >
+                                    <PageContentWrapper>
+                                        <Suspense fallback={<ChunkLoader message={localize('Loading...')} />}>
+                                            <AnalysisTool />
+                                        </Suspense>
+                                    </PageContentWrapper>
+                                </div>
+                            )}
+
+                            {/* Tab 4: Trading Tools */}
+                            {admin.visible_tabs.trading_tools && (
+                                <div
+                                    label={
+                                        <div className='main__tabs-label'>
+                                            <LabelPairedSlidersCaptionRegularIcon
+                                                height='20px'
+                                                width='20px'
+                                                fill='var(--text-general)'
+                                            />
+                                            <Localize i18n_default_text='Trading Tools' />
+                                        </div>
+                                    }
+                                    id='id-trading-tools'
+                                >
+                                    <PageContentWrapper>
+                                        <TradingTools />
+                                    </PageContentWrapper>
+                                </div>
+                            )}
+
+                            {/* Tab 5: Copy Trading */}
+                            {admin.visible_tabs.copy_trading && (
+                                <div
+                                    label={
+                                        <div className='main__tabs-label'>
+                                            <LabelPairedCopyCaptionRegularIcon
+                                                height='20px'
+                                                width='20px'
+                                                fill='var(--text-general)'
+                                            />
+                                            <Localize i18n_default_text='Copy Trading' />
+                                        </div>
+                                    }
+                                    id='id-copy-trading'
+                                >
+                                    <PageContentWrapper>
+                                        <Suspense fallback={<ChunkLoader message={localize('Loading...')} />}>
+                                            <CopyTrading />
+                                        </Suspense>
+                                    </PageContentWrapper>
+                                </div>
+                            )}
+
+                            {/* Tab 6: Strategies */}
+                            {admin.visible_tabs.strategies && (
+                                <div
+                                    label={
+                                        <div className='main__tabs-label'>
+                                            <LabelPairedLightbulbCaptionRegularIcon
+                                                height='20px'
+                                                width='20px'
+                                                fill='var(--text-general)'
+                                            />
+                                            <Localize i18n_default_text='Strategies' />
+                                        </div>
+                                    }
+                                    id='id-strategies'
+                                >
+                                    <PageContentWrapper>
+                                        <Suspense fallback={<ChunkLoader message={localize('Loading Strategies...')} />}>
+                                            <Strategies />
+                                        </Suspense>
+                                    </PageContentWrapper>
+                                </div>
+                            )}
+
+                            {/* Tab 7: Settings */}
+                            {admin.visible_tabs.settings && (
+                                <div
+                                    label={
+                                        <div className='main__tabs-label'>
+                                            <LabelPairedGearCaptionRegularIcon
+                                                height='20px'
+                                                width='20px'
+                                                fill='var(--text-general)'
+                                            />
+                                            <Localize i18n_default_text='Settings' />
+                                        </div>
+                                    }
+                                    id='id-settings'
+                                >
+                                    <PageContentWrapper>
+                                        <Suspense fallback={<ChunkLoader message={localize('Loading Settings...')} />}>
+                                            <Settings />
+                                        </Suspense>
+                                    </PageContentWrapper>
+                                </div>
+                            )}
+
+                            {/* Tab 8: Tutorials */}
+                            {admin.visible_tabs.tutorials && (
+                                <div
+                                    label={
+                                        <div className='main__tabs-label'>
+                                            <LabelPairedGraduationCapCaptionRegularIcon
+                                                height='20px'
+                                                width='20px'
+                                                fill='var(--text-general)'
+                                            />
+                                            <Localize i18n_default_text='Tutorials' />
+                                        </div>
+                                    }
+                                    id='id-tutorials'
+                                >
+                                    <PageContentWrapper>
+                                        <Suspense fallback={<ChunkLoader message={localize('Loading...')} />}>
+                                            <Tutorials />
+                                        </Suspense>
+                                    </PageContentWrapper>
+                                </div>
+                            )}
                         </Tabs>
                         {!isDesktop && right_tab_shadow && <span className='tabs-shadow tabs-shadow--right' />}{' '}
                     </div>

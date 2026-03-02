@@ -1,241 +1,279 @@
-import React, { useState } from 'react';
-import { observer } from 'mobx-react-lite';
+import { useEffect, useRef, useState } from 'react';
 import { runInAction } from 'mobx';
-import { useStore } from '@/hooks/useStore';
+import { observer } from 'mobx-react-lite';
 import { 
-    LabelPairedPlayMdFillIcon, 
-    LabelPairedSquareMdFillIcon, 
-    LabelPairedArrowsRotateMdRegularIcon 
-} from '@deriv/quill-icons/LabelPaired';
+    LabelPairedArrowsRotateMdRegularIcon,
+    LabelPairedChartLineMdRegularIcon,
+    LabelPairedCircleInfoMdRegularIcon,
+    LabelPairedPlayMdFillIcon,
+    LabelPairedSquareMdFillIcon
+} from '@deriv/quill-icons';
+import { useStore } from '../../../hooks/useStore';
 import './trading-engine.scss';
+
+interface DigitStat {
+    digit: number;
+    power: number;
+    count: number;
+    percentage: number;
+}
+
+interface EvenOddHistoryItem {
+    type: 'E' | 'O';
+}
+
+interface LogEntry {
+    type: string;
+    timestamp: number;
+    message: string;
+}
 
 const TradingEngine = observer(() => {
     const { smart_auto, analysis } = useStore();
     const [activeTab, setActiveTab] = useState<'even_odd' | 'over_under' | 'differs' | 'matches' | 'smart_auto_24' | 'rise_fall'>('even_odd');
+    const [activeLogTab, setActiveLogTab] = useState<'summary' | 'transactions' | 'journal'>('summary');
     
     // Auto-scroll logs
-    const { even_odd_history, over_under_history, rise_fall_history, percentages, digit_stats } = analysis;
+    const { even_odd_history, percentages, digit_stats } = analysis;
     const { bot_status, is_executing, session_profit, total_profit, logs } = smart_auto;
-    const logRef = React.useRef<HTMLDivElement>(null);
+    const logRef = useRef<HTMLDivElement>(null);
 
-    React.useEffect(() => {
+    useEffect(() => {
         if (logRef.current) {
             logRef.current.scrollTop = logRef.current.scrollHeight;
         }
     }, [logs.length]);
 
     const renderBotControls = (botType: 'even_odd' | 'over_under' | 'differs' | 'matches' | 'smart_auto_24' | 'rise_fall') => {
-        const config = (smart_auto as any)[`${botType}_config` || 'over_under_config'];
+        const config = (smart_auto as Record<string, any>)[`${botType}_config` || 'over_under_config'];
         
         return (
-            <div className='bot-controls-wrapper'>
-                <div className='controls-grid'>
-                    <div className='input-group'>
-                        <label>Stake ($)</label>
-                         <input 
-                            type='number' 
-                            value={config.stake} 
-                            onChange={(e) => smart_auto.updateConfig(botType, 'stake', parseFloat(e.target.value))} 
-                        />
+            <div className='strategy-layout'>
+                <div className='strategy-info-panel'>
+                    <div className='info-header'>
+                        <h3>Strategy Analysis</h3>
+                        <div className='active-badge'>{botType.toUpperCase().replace('_', ' ')}</div>
                     </div>
-                    <div className='input-group'>
-                        <label>Take Profit ($)</label>
-                         <input 
-                            type='number' 
-                            value={config.take_profit || 10} 
-                            onChange={(e) => smart_auto.updateConfig(botType, 'take_profit', parseFloat(e.target.value))} 
-                        />
-                    </div>
-                    <div className='input-group'>
-                        <label>Stop Loss ($)</label>
-                         <input 
-                            type='number' 
-                            value={config.max_loss} 
-                            onChange={(e) => smart_auto.updateConfig(botType, 'max_loss', parseFloat(e.target.value))} 
-                        />
-                    </div>
-                    <div className='input-group'>
-                        <label>Martingale Multiplier</label>
-                        <input 
-                            type='number' 
-                            value={config.multiplier} 
-                            onChange={(e) => smart_auto.updateConfig(botType, 'multiplier', parseFloat(e.target.value))} 
-                        />
-                    </div>
-                    <div className='input-group'>
-                        <label>Max Runs</label>
-                        <input 
-                            type='number' 
-                            value={config.max_runs || 12} 
-                            onChange={(e) => smart_auto.updateConfig(botType, 'max_runs', parseInt(e.target.value))} 
-                        />
-                    </div>
-                    <div className='input-group'>
-                        <label>Ticks Duration</label>
-                        <input 
-                            type='number' 
-                            value={config.ticks} 
-                            onChange={(e) => smart_auto.updateConfig(botType, 'ticks', parseInt(e.target.value))} 
-                        />
-                    </div>
-                    {(botType === 'differs' || botType === 'matches' || botType === 'over_under') && (
-                        <div className='input-group'>
-                            <label>Prediction {botType === 'over_under' || botType === 'matches' ? '(Suggested)' : ''}</label>
-                            <input 
-                                type='number' 
-                                value={config.prediction} 
-                                onChange={(e) => smart_auto.updateConfig(botType, 'prediction', parseInt(e.target.value))} 
-                            />
-                        </div>
-                    )}
-                    {(botType === 'differs' || botType === 'matches' || botType === 'over_under' || botType === 'even_odd') && (
-                        <div className='input-group'>
-                            <label>Bulk Trades</label>
-                            <input 
-                                type='number' 
-                                min='1'
-                                max='10'
-                                value={config.bulk_trades_count || 1} 
-                                onChange={(e) => smart_auto.updateConfig(botType, 'bulk_trades_count', parseInt(e.target.value))} 
-                            />
-                        </div>
-                    )}
-                </div>
 
-                {botType === 'even_odd' && (
-                    <div className='advanced-controls-wrapper'>
-                        <div className='controls-grid'>
-                            <div className='input-group'>
-                                <label>Trigger Condition</label>
-                                <select 
-                                    value={config.trigger_condition || 'EITHER'}
-                                    onChange={(e) => smart_auto.updateConfig(botType, 'trigger_condition', e.target.value as any)}
-                                >
-                                    <option value="EITHER">Either (Even/Odd)</option>
-                                    <option value="EVEN">Even Only</option>
-                                    <option value="ODD">Odd Only</option>
-                                </select>
-                            </div>
-                            <div className='input-group'>
-                                <label>Target Prediction</label>
-                                <select 
-                                    value={config.target_prediction || 'EVEN'}
-                                    onChange={(e) => smart_auto.updateConfig(botType, 'target_prediction', e.target.value as any)}
-                                >
-                                    <option value="EVEN">Trade Even</option>
-                                    <option value="ODD">Trade Odd</option>
-                                </select>
-                            </div>
-                            <div className='input-group'>
-                                <label>Entry Pattern</label>
-                                <select 
-                                    value={config.entry_pattern || 'PATTERN_1'}
-                                    onChange={(e) => smart_auto.updateConfig(botType, 'entry_pattern', e.target.value as any)}
-                                >
-                                    <option value="PATTERN_1">Threshold + Consecutive</option>
-                                    <option value="PATTERN_2">Rankings (High/2nd/Least)</option>
-                                </select>
+                    {botType === 'over_under' && (
+                        <div className='analysis-content'>
+                            <div className='power-display'>
+                                <div className='power-item'>
+                                    <span className='label'>OVER (5-9):</span>
+                                    <span className='value blue'>{percentages.over.toFixed(1)}%</span>
+                                </div>
+                                <div className='power-item'>
+                                    <span className='label'>UNDER (0-4):</span>
+                                    <span className='value orange'>{percentages.under.toFixed(1)}%</span>
+                                </div>
                             </div>
                             
-                            {config.entry_pattern !== 'PATTERN_2' && (
-                                <>
-                                    <div className='input-group'>
-                                        <label>Trigger %</label>
-                                        <input 
-                                            type='number' 
-                                            value={config.trigger_percentage || 55} 
-                                            onChange={(e) => smart_auto.updateConfig(botType, 'trigger_percentage', parseFloat(e.target.value))} 
-                                        />
-                                    </div>
-                                    <div className='input-group'>
-                                        <label>Consecutive Ticks</label>
-                                        <input 
-                                            type='number' 
-                                            value={config.consecutive_ticks || 2} 
-                                            onChange={(e) => smart_auto.updateConfig(botType, 'consecutive_ticks', parseInt(e.target.value))} 
-                                        />
-                                    </div>
-                                </>
-                            )}
-                        </div>
-                    </div>
-                )}
-
-                {botType === 'differs' && (
-                    <div className='advanced-controls-wrapper'>
-                        <div className='controls-grid'>
-                            <div className='input-group'>
-                                <label>Max Allowed %</label>
-                                <input 
-                                    type='number' 
-                                    step='1' 
-                                    value={config.differs_max_percentage ?? 9} 
-                                    onChange={(e) => smart_auto.updateConfig(botType, 'differs_max_percentage' as any, parseFloat(e.target.value))} 
-                                />
+                            <div className='suggestion-box'>
+                                <span className='label'>💡 {percentages.over > percentages.under ? 'Suggested (Trade OVER)' : 'Suggested (Trade UNDER)'}:</span>
+                                <div className='prediction-buttons'>
+                                    {[0, 1, 2, 3, 4, 5, 6, 7, 8, 9].map(p => (
+                                        <button 
+                                            key={p} 
+                                            className={`pred-btn ${config.prediction === p ? 'active' : ''} ${((percentages.over > percentages.under ? [0, 1, 2, 3] : [6, 7, 8, 9]).includes(p)) ? 'suggested' : ''}`}
+                                            onClick={() => smart_auto.updateConfig(botType, 'prediction', p)}
+                                        >
+                                            {p}
+                                        </button>
+                                    ))}
+                                </div>
                             </div>
-                            <div className='input-group'>
-                                <label>Target Appearances</label>
-                                <input 
-                                    type='number' 
-                                    step='1' 
-                                    min='1' 
-                                    value={config.differs_target_ticks ?? 2} 
-                                    onChange={(e) => smart_auto.updateConfig(botType, 'differs_target_ticks' as any, parseInt(e.target.value))} 
-                                />
+                            
+                            <div className='signal-status'>
+                                <span className='label'>🎯 Status:</span>
+                                <span className='value'>
+                                    {percentages.under > 55 ? 'UNDER dominant - Waiting for Signal' : 
+                                     percentages.over > 55 ? 'OVER dominant - Waiting for Signal' : 
+                                     'Market Neutral'}
+                                </span>
                             </div>
                         </div>
-                    </div>
-                )}
+                    )}
 
-                <div className='toggles-grid'>
-                    <div className='toggle-item'>
-                        <label>Martingale</label>
-                        <button 
-                            className={`toggle-btn ${config.use_martingale ? 'on' : 'off'}`}
-                            onClick={() => smart_auto.updateConfig(botType, 'use_martingale', !config.use_martingale)}
-                        >
-                            {config.use_martingale ? 'ON' : 'OFF'}
-                        </button>
-                    </div>
-                    <div className='toggle-item'>
-                        <label>Max Loss Limit</label>
-                         <button 
-                            className={`toggle-btn ${config.use_max_loss ? 'on' : 'off'}`}
-                            onClick={() => smart_auto.updateConfig(botType, 'use_max_loss', !config.use_max_loss)}
-                        >
-                            {config.use_max_loss ? 'ON' : 'OFF'}
-                        </button>
-                    </div>
-                    <div className='toggle-item'>
-                        <label>Compounding</label>
-                        <button 
-                            className={`toggle-btn ${config.use_compounding ? 'on' : 'off'}`}
-                            onClick={() => smart_auto.updateConfig(botType, 'use_compounding', !config.use_compounding)}
-                        >
-                            {config.use_compounding ? 'ON' : 'OFF'}
-                        </button>
-                    </div>
+                    {botType === 'matches' && (
+                        <div className='analysis-content'>
+                             <div className='digit-rankings'>
+                                {digit_stats.slice().sort((a: DigitStat, b: DigitStat) => b.power - a.power).slice(0, 3).map((s: DigitStat) => (
+                                    <div key={s.digit} className='rank-row'>
+                                        <span className='digit'>Digit {s.digit}</span>
+                                        <div className='power-track'><div className='fill' style={{ width: `${s.power}%` }}></div></div>
+                                        <span className='value'>{s.power}%</span>
+                                    </div>
+                                ))}
+                            </div>
+                            <div className='suggestion-box'>
+                                <span className='label'>💡 Best Targets:</span>
+                                <div className='prediction-buttons'>
+                                    {(() => {
+                                        const sorted = [...digit_stats].sort((a: DigitStat, b: DigitStat) => b.count - a.count);
+                                        return [sorted[0], sorted[1], sorted[9]].map((s: DigitStat) => (
+                                            <button 
+                                                key={s.digit} 
+                                                className={`pred-btn ${config.prediction === s.digit ? 'active' : ''}`}
+                                                onClick={() => smart_auto.updateConfig(botType, 'prediction', s.digit)}
+                                            >
+                                                {s.digit}
+                                            </button>
+                                        ));
+                                    })()}
+                                </div>
+                            </div>
+                        </div>
+                    )}
+
+                    {botType === 'differs' && (
+                        <div className='analysis-content'>
+                             <div className='digit-rankings'>
+                                {digit_stats.slice().sort((a: DigitStat, b: DigitStat) => a.percentage - b.percentage).slice(0, 5).map((s: DigitStat) => (
+                                    <div key={s.digit} className={`rank-row ${s.digit >= 2 && s.digit <= 7 ? 'eligible' : ''}`}>
+                                        <span className='digit'>Digit {s.digit}</span>
+                                        <div className='power-track'><div className='fill' style={{ width: `${s.percentage * 10}%` }}></div></div>
+                                        <span className='value'>{s.percentage.toFixed(1)}%</span>
+                                    </div>
+                                ))}
+                            </div>
+                        </div>
+                    )}
+
+                    {botType === 'even_odd' && (
+                        <div className='analysis-content'>
+                            <div className='power-display'>
+                                <div className='power-item'>
+                                    <span className='label'>EVEN Power:</span>
+                                    <span className='value green'>{percentages.even.toFixed(1)}%</span>
+                                </div>
+                                <div className='power-item'>
+                                    <span className='label'>ODD Power:</span>
+                                    <span className='value red'>{percentages.odd.toFixed(1)}%</span>
+                                </div>
+                            </div>
+                            <div className='history-section'>
+                                <span className='label'>Recent Pattern:</span>
+                                <div className='history-boxes'>
+                                    {even_odd_history.slice(0, 15).map((h: EvenOddHistoryItem, i: number) => (
+                                        <div key={i} className={`history-box ${h.type}`}>{h.type === 'E' ? 'E' : 'O'}</div>
+                                    ))}
+                                </div>
+                            </div>
+                        </div>
+                    )}
                 </div>
 
-                <div className='action-buttons'>
-                    <button 
-                        className={`action-btn run-once ${config.is_running && !config.is_auto ? 'active' : ''}`}
-                        onClick={() => smart_auto.toggleBot(botType, 'manual')}
-                        disabled={config.is_running && config.is_auto}
-                    >
-                        <LabelPairedPlayMdFillIcon />
-                        TRADE ONCE
-                    </button>
-                    <button 
-                        className={`action-btn auto-run ${config.is_running && config.is_auto ? 'active' : ''}`}
-                        onClick={() => smart_auto.toggleBot(botType, 'auto')}
-                    >
-                        {config.is_running && config.is_auto ? <LabelPairedSquareMdFillIcon /> : <LabelPairedArrowsRotateMdRegularIcon />}
-                        {config.is_running && config.is_auto ? 'STOP AUTO' : 'START AUTO'}
-                    </button>
+                <div className='bot-settings-panel'>
+                    <div className='controls-grid'>
+                        <div className='input-group'>
+                            <label>Stake ($)</label>
+                            <input type='number' value={config.stake} onChange={(e) => smart_auto.updateConfig(botType, 'stake', parseFloat(e.target.value))} />
+                        </div>
+                        <div className='input-group'>
+                            <label>Take Profit ($)</label>
+                            <input type='number' value={config.take_profit || 10} onChange={(e) => smart_auto.updateConfig(botType, 'take_profit', parseFloat(e.target.value))} />
+                        </div>
+                        <div className='input-group'>
+                            <label>Stop Loss ($)</label>
+                            <input type='number' value={config.max_loss} onChange={(e) => smart_auto.updateConfig(botType, 'max_loss', parseFloat(e.target.value))} />
+                        </div>
+                        <div className='input-group'>
+                            <label>Multiplier</label>
+                            <input type='number' value={config.multiplier} onChange={(e) => smart_auto.updateConfig(botType, 'multiplier', parseFloat(e.target.value))} />
+                        </div>
+                        
+                        {(botType === 'differs' || botType === 'matches' || botType === 'over_under') && (
+                            <div className='input-group'>
+                                <label>Prediction</label>
+                                <input type='number' value={config.prediction} onChange={(e) => smart_auto.updateConfig(botType, 'prediction', parseInt(e.target.value))} />
+                            </div>
+                        )}
+                        <div className='input-group'>
+                            <label>Ticks</label>
+                            <input type='number' value={config.ticks} onChange={(e) => smart_auto.updateConfig(botType, 'ticks', parseInt(e.target.value))} />
+                        </div>
+                        <div className='input-group'>
+                            <label>Bulk Trades</label>
+                            <input type='number' min='1' max='10' value={config.bulk_trades_count || 1} onChange={(e) => smart_auto.updateConfig(botType, 'bulk_trades_count', parseInt(e.target.value))} />
+                        </div>
+                    </div>
+
+                    <div className='toggles-grid'>
+                        <button className={`toggle-btn ${config.use_martingale ? 'active' : ''}`} onClick={() => smart_auto.updateConfig(botType, 'use_martingale', !config.use_martingale)}>
+                            Martingale: {config.use_martingale ? 'ON' : 'OFF'}
+                        </button>
+                        <button className={`toggle-btn ${config.use_max_loss ? 'active' : ''}`} onClick={() => smart_auto.updateConfig(botType, 'use_max_loss', !config.use_max_loss)}>
+                            Stop Loss: {config.use_max_loss ? 'ON' : 'OFF'}
+                        </button>
+                        <button className={`toggle-btn ${config.use_compounding ? 'active' : ''}`} onClick={() => smart_auto.updateConfig(botType, 'use_compounding', !config.use_compounding)}>
+                            Compound: {config.use_compounding ? 'ON' : 'OFF'}
+                        </button>
+                    </div>
+
+                    <div className='action-buttons'>
+                        <button className='action-btn run-once' onClick={() => smart_auto.toggleBot(botType, 'manual')} disabled={config.is_running && config.is_auto}>
+                            <LabelPairedPlayMdFillIcon /> TRADE ONCE
+                        </button>
+                        <button className={`action-btn auto-run ${config.is_running && config.is_auto ? 'active' : ''}`} onClick={() => smart_auto.toggleBot(botType, 'auto')}>
+                            {config.is_running && config.is_auto ? <LabelPairedSquareMdFillIcon /> : <LabelPairedArrowsRotateMdRegularIcon />}
+                            {config.is_running && config.is_auto ? 'STOP AUTO' : 'START AUTO'}
+                        </button>
+                    </div>
                 </div>
             </div>
         );
+    };
+
+    const renderLogContent = () => {
+        switch (activeLogTab) {
+            case 'summary': {
+                const totalTrades = logs.length;
+                const wins = logs.filter((l: LogEntry) => l.type === 'success').length;
+                const losses = logs.filter((l: LogEntry) => l.type === 'error').length;
+                const winRate = totalTrades > 0 ? ((wins / totalTrades) * 100).toFixed(1) : '0.0';
+                
+                return (
+                    <div className='summary-grid'>
+                        <div className='summary-card'><span className='label'>Total Trades</span><span className='value'>{totalTrades}</span></div>
+                        <div className='summary-card'><span className='label'>Wins</span><span className='value success'>{wins}</span></div>
+                        <div className='summary-card'><span className='label'>Losses</span><span className='value error'>{losses}</span></div>
+                        <div className='summary-card'><span className='label'>Win Rate</span><span className='value'>{winRate}%</span></div>
+                        <div className='summary-card'><span className='label'>Session</span><span className={`value ${session_profit >= 0 ? 'success' : 'error'}`}>${session_profit.toFixed(2)}</span></div>
+                        <div className='summary-card'><span className='label'>Total</span><span className={`value ${total_profit >= 0 ? 'success' : 'error'}`}>${total_profit.toFixed(2)}</span></div>
+                    </div>
+                );
+            }
+            case 'transactions':
+                return (
+                    <div className='transaction-list'>
+                        {logs.filter((l: LogEntry) => l.type === 'trade' || l.type === 'success' || l.type === 'error').length === 0 ? (
+                            <div className='empty'>No transactions yet...</div>
+                        ) : (
+                            logs.filter((l: LogEntry) => l.type === 'trade' || l.type === 'success' || l.type === 'error').map((log: LogEntry, i: number) => (
+                                <div key={i} className={`transaction-item ${log.type}`}>
+                                    <span className='time'>[{new Date(log.timestamp).toLocaleTimeString()}]</span>
+                                    <span className='message'>{log.message}</span>
+                                </div>
+                            ))
+                        )}
+                    </div>
+                );
+            case 'journal':
+                return (
+                    <div className='journal-content'>
+                        {logs.length === 0 ? (
+                            <div className='empty'>No journal entries...</div>
+                        ) : (
+                            logs.map((log: LogEntry, i: number) => (
+                                <div key={i} className={`log-entry ${log.type}`}>
+                                    <span className='time'>[{new Date(log.timestamp).toLocaleTimeString([], { hour12: false, hour: '2-digit', minute: '2-digit', second: '2-digit' })}]</span>
+                                    <span className='message'>{log.message}</span>
+                                </div>
+                            ))
+                        )}
+                    </div>
+                );
+        }
     };
 
     return (
@@ -250,96 +288,28 @@ const TradingEngine = observer(() => {
             </div>
 
             <div className='engine-content'>
-                <div className='stats-panel'>
-                    {activeTab === 'even_odd' && (
-                        <div className='bot-stat-section'>
-                            <div className='stat-header'>
-                                <span>EVEN vs ODD Analysis (Last 15)</span>
-                                <div style={{ display: 'flex', gap: '8px' }}>
-                                    <span className={`power-indicator ${percentages.even > 50 ? 'rising' : ''}`}>EVEN: {percentages.even.toFixed(1)}%</span>
-                                    <span className={`power-indicator ${percentages.odd > 50 ? 'rising' : ''}`}>ODD: {percentages.odd.toFixed(1)}%</span>
-                                </div>
-                            </div>
-                            <div className='history-boxes'>
-                                {even_odd_history.slice(0, 30).map((h, i) => (
-                                    <div key={i} className={`history-box ${h.type}`}>
-                                        {h.type}
-                                    </div>
-                                ))}
-                            </div>
-                        </div>
-                    )}
-                    
-                    {activeTab === 'over_under' && (
-                        <div className='bot-stat-section'>
-                            <div className='stat-header'>
-                                <span>UNDER (0-4) vs OVER (5-9)</span>
-                                <div style={{ display: 'flex', gap: '8px' }}>
-                                    <span className={`power-indicator ${percentages.over > 50 ? 'rising' : ''}`}>OVER: {percentages.over.toFixed(1)}%</span>
-                                    <span className={`power-indicator ${percentages.under > 50 ? 'rising' : ''}`}>UNDER: {percentages.under.toFixed(1)}%</span>
-                                </div>
-                            </div>
-                            <div className='history-boxes'>
-                                {over_under_history.slice(0, 30).map((h, i) => (
-                                    <div key={i} className={`history-box ${h.type}`}>
-                                        {h.type}
-                                    </div>
-                                ))}
-                            </div>
-                        </div>
-                    )}
+                {renderBotControls(activeTab)}
 
-                    {(activeTab === 'differs' || activeTab === 'matches') && (
-                        <div className='bot-stat-section'>
-                            <div className='stat-header'>
-                                <span>Digit Power Rankings (Top 3)</span>
-                            </div>
-                            <div className='rankings-list'>
-                                {digit_stats.slice().sort((a, b) => b.power - a.power).slice(0, 3).map(s => (
-                                    <div key={s.digit} className='rank-item'>
-                                        <span className='digit'>Digit {s.digit}</span>
-                                        <div className='power-track'><div className='fill' style={{ width: `${s.power}%` }}></div></div>
-                                        <span className='value'>{s.power}%</span>
-                                    </div>
-                                ))}
-                            </div>
+                <div className='trading-log-section'>
+                    <div className='log-header'>
+                        <h3>📑 Trading Activity</h3>
+                        <div className='log-tabs'>
+                            <button className={activeLogTab === 'summary' ? 'active' : ''} onClick={() => setActiveLogTab('summary')}>
+                                <LabelPairedChartLineMdRegularIcon /> Summary
+                            </button>
+                            <button className={activeLogTab === 'transactions' ? 'active' : ''} onClick={() => setActiveLogTab('transactions')}>
+                                <LabelPairedArrowsRotateMdRegularIcon /> Transactions
+                            </button>
+                            <button className={activeLogTab === 'journal' ? 'active' : ''} onClick={() => setActiveLogTab('journal')}>
+                                <LabelPairedCircleInfoMdRegularIcon /> Journal
+                            </button>
                         </div>
-                    )}
-                    
-                    {activeTab === 'rise_fall' && (
-                        <div className='bot-stat-section'>
-                            <div className='stat-header'>
-                                <span>RISE vs FALL Trend</span>
-                                <span className='power-indicator'>RISE: {percentages.rise.toFixed(1)}%</span>
-                            </div>
-                            <div className='history-boxes'>
-                                {rise_fall_history.slice(0, 30).map((h, i) => (
-                                    <div key={i} className={`history-box ${h.type}`}>
-                                        {h.type}
-                                    </div>
-                                ))}
-                            </div>
-                        </div>
-                    )}
-                </div>
-
-                <div className='activity-log-wrapper'>
-                    <div className='log-header'>Live Trade Log</div>
+                        <button className='clear-log' onClick={() => smart_auto.clearLogs()}>Clear</button>
+                    </div>
                     <div className='log-content' ref={logRef}>
-                        {logs.length === 0 ? (
-                            <div className='empty'>Waiting for bot activity...</div>
-                        ) : (
-                            logs.map((log, i) => (
-                                <div key={i} className={`log-entry ${log.type}`}>
-                                    <span className='time'>[{new Date(log.timestamp).toLocaleTimeString([], { hour12: false, hour: '2-digit', minute: '2-digit', second: '2-digit' })}]</span>
-                                    <span className='message'>{log.message}</span>
-                                </div>
-                            ))
-                        )}
+                        {renderLogContent()}
                     </div>
                 </div>
-
-                {renderBotControls(activeTab)}
             </div>
 
             <div className='engine-footer'>

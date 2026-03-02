@@ -1,10 +1,7 @@
-import { useEffect } from 'react';
-import { observer } from 'mobx-react-lite';
 import { useFreeBots } from '@/hooks/use-free-bots';
 import { useStore } from '@/hooks/useStore';
-import TechBackground from '@/components/shared_ui/tech-background/tech-background';
-import { TDigitStat } from '@/stores/analysis-store';
 import './free-bots-tab.scss';
+
 
 const LiveMarketAnalysis = observer(() => {
     const { analysis } = useStore();
@@ -155,13 +152,6 @@ const FreeBotsTab = observer(() => {
 
     return (
         <div className={`free-bots-tab ${is_dark_mode_on ? 'free-bots-tab--dark' : 'free-bots-tab--light'}`}>
-            <TechBackground />
-            <div className='free-bots-tab__header'>
-                <h2>Nexus Strategies</h2>
-                <p>Advanced algorithmic trading solutions for the modern market.</p>
-            </div>
-
-            <LiveMarketAnalysis />
 
             <div className='free-bots-tab__categories'>
                 {categories.map(category => (

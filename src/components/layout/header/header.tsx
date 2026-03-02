@@ -1,3 +1,4 @@
+import { Link } from 'react-router-dom';
 import { useCallback } from 'react';
 import clsx from 'clsx';
 import { observer } from 'mobx-react-lite';
@@ -12,7 +13,7 @@ import { useStore } from '@/hooks/useStore';
 import useTMB from '@/hooks/useTMB';
 import { clearAuthData } from '@/utils/auth-utils';
 import { LegacyWhatsappIcon } from '@deriv/quill-icons/Legacy';
-import { StandaloneCircleUserRegularIcon } from '@deriv/quill-icons/Standalone';
+import { StandaloneCircleUserRegularIcon, StandaloneGearRegularIcon } from '@deriv/quill-icons/Standalone';
 import { Localize, useTranslations } from '@deriv-com/translations';
 import { Header, useDevice, Wrapper, Tooltip } from '@deriv-com/ui';
 import { AppLogo } from '../app-logo';
@@ -95,39 +96,28 @@ const AppHeader = observer(({ isAuthenticating }: TAppHeaderProps) => {
 
                     <AccountSwitcher activeAccount={activeAccount} />
 
-                    {isDesktop &&
-                        (() => {
-                            let redirect_url = new URL(standalone_routes.personal_details);
-                            const is_hub_enabled_country = hubEnabledCountryList.includes(client?.residence || '');
-
-                            if (has_wallet && is_hub_enabled_country) {
-                                redirect_url = new URL(standalone_routes.account_settings);
-                            }
-                            // Check if the account is a demo account
-                            // Use the URL parameter to determine if it's a demo account, as this will update when the account changes
-                            const urlParams = new URLSearchParams(window.location.search);
-                            const account_param = urlParams.get('account');
-                            const is_virtual = client?.is_virtual || account_param === 'demo';
-
-                            if (is_virtual) {
-                                // For demo accounts, set the account parameter to 'demo'
-                                redirect_url.searchParams.set('account', 'demo');
-                            } else if (currency) {
-                                // For real accounts, set the account parameter to the currency
-                                redirect_url.searchParams.set('account', currency);
-                            }
-                            return (
-                                <Tooltip
-                                    as='a'
-                                    href={redirect_url.toString()}
-                                    tooltipContent={localize('Manage account settings')}
-                                    tooltipPosition='bottom'
-                                    className='app-header__account-settings'
-                                >
+                    {isDesktop && (
+                        <div className="flex items-center gap-4 ml-4">
+                            <Tooltip
+                                tooltipContent={localize('Admin Panel')}
+                                tooltipPosition='bottom'
+                                className='app-header__account-settings'
+                            >
+                                <Link to="/admin">
+                                    <StandaloneGearRegularIcon className='app-header__profile_icon' />
+                                </Link>
+                            </Tooltip>
+                            <Tooltip
+                                tooltipContent={localize('Account Dashboard')}
+                                tooltipPosition='bottom'
+                                className='app-header__account-settings'
+                            >
+                                <Link to="/account">
                                     <StandaloneCircleUserRegularIcon className='app-header__profile_icon' />
-                                </Tooltip>
-                            );
-                        })()}
+                                </Link>
+                            </Tooltip>
+                        </div>
+                    )}
                 </>
             );
         } else {
@@ -137,8 +127,6 @@ const AppHeader = observer(({ isAuthenticating }: TAppHeaderProps) => {
                         tertiary
                         onClick={async () => {
                             clearAuthData(false);
-                            const getQueryParams = new URLSearchParams(window.location.search);
-                            const currency = getQueryParams.get('account') ?? '';
 
                             try {
                                 // First, explicitly wait for TMB status to be determined
