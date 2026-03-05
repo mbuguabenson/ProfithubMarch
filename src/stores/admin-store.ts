@@ -70,6 +70,7 @@ export default class AdminStore {
         analysis_tool: true,
         trading_tools: true,
         copy_trading: true,
+        free_bots: true,
         strategies: true,
         settings: true,
         tutorials: true,

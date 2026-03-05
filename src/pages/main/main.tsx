@@ -38,6 +38,7 @@ import './main.scss';
 const ChartWrapper = lazy(() => import('../chart/chart-wrapper'));
 
 const CopyTrading = lazy(() => import('../copy-trader'));
+const FreeBots = lazy(() => import('../free-bots/free-bots-tab'));
 const AnalysisTool = lazy(() => import('../analysis-tool/index'));
 const Tutorials = lazy(() => import('../tutorials/tutorials'));
 const SmartAuto24 = lazy(() => import('../circles-analysis/index'));
@@ -484,7 +485,30 @@ const AppWrapper = observer(() => {
                                 </div>
                             )}
 
-                            {/* Tab 6: Strategies */}
+                            {/* Tab 6: Free Bots */}
+                            {admin.visible_tabs.free_bots && (
+                                <div
+                                    label={
+                                        <div className='main__tabs-label'>
+                                            <LabelPairedLightbulbCaptionRegularIcon
+                                                height='20px'
+                                                width='20px'
+                                                fill='var(--text-general)'
+                                            />
+                                            <Localize i18n_default_text='Free Bots' />
+                                        </div>
+                                    }
+                                    id='id-free-bots'
+                                >
+                                    <PageContentWrapper>
+                                        <Suspense fallback={<ChunkLoader message={localize('Loading Free Bots...')} />}>
+                                            <FreeBots />
+                                        </Suspense>
+                                    </PageContentWrapper>
+                                </div>
+                            )}
+
+                            {/* Tab 7: Strategies */}
                             {admin.visible_tabs.strategies && (
                                 <div
                                     label={
@@ -509,7 +533,7 @@ const AppWrapper = observer(() => {
                                 </div>
                             )}
 
-                            {/* Tab 7: Settings */}
+                            {/* Tab 8: Settings */}
                             {admin.visible_tabs.settings && (
                                 <div
                                     label={
@@ -532,7 +556,7 @@ const AppWrapper = observer(() => {
                                 </div>
                             )}
 
-                            {/* Tab 8: Tutorials */}
+                            {/* Tab 9: Tutorials */}
                             {admin.visible_tabs.tutorials && (
                                 <div
                                     label={
