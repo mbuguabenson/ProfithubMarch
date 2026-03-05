@@ -1,5 +1,6 @@
 .free-bots-tab {
     padding: 60px 24px;
+    background: linear-gradient(135deg, rgba(10, 10, 30, 0.95) 0%, rgba(20, 20, 40, 0.98) 100%);
     min-height: 100vh;
     position: relative;
     z-index: 1;
@@ -10,6 +11,7 @@
         margin-bottom: 60px;
         text-align: center;
         max-width: 800px;
+
         margin-left: auto;
         margin-right: auto;
 
