@@ -1,0 +1,250 @@
+// Admin Login Form — Soft UI Aesthetic
+// Uses SCSS (no Tailwind) for reliable rendering
+
+.admin-login-page {
+    min-height: 100vh;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    background: var(--general-main-1, #050505);
+    padding: 1.5rem;
+    font-family: 'IBM Plex Sans', sans-serif;
+    position: relative;
+    overflow: hidden;
+
+    .bg-glow {
+        position: absolute;
+        border-radius: 50%;
+        filter: blur(120px);
+        pointer-events: none;
+
+        &.top-left {
+            top: -10%;
+            left: -10%;
+            width: 40%;
+            height: 40%;
+            background: rgba(59, 130, 246, 0.07);
+        }
+
+        &.bottom-right {
+            bottom: -10%;
+            right: -10%;
+            width: 40%;
+            height: 40%;
+            background: rgba(168, 85, 247, 0.07);
+        }
+    }
+
+    .login-card {
+        width: 100%;
+        max-width: 440px;
+        position: relative;
+        z-index: 10;
+        background: var(--general-main-2, #0b0f19);
+        border: 1px solid rgba(255, 255, 255, 0.06);
+        border-radius: 2.5rem;
+        padding: 3rem 2.5rem;
+        box-shadow: 0 40px 80px rgba(0, 0, 0, 0.4);
+        backdrop-filter: blur(20px);
+    }
+
+    .login-brand {
+        text-align: center;
+        margin-bottom: 2.5rem;
+
+        .brand-icon {
+            width: 4rem;
+            height: 4rem;
+            background: linear-gradient(135deg, #3b82f6, #06b6d4);
+            border-radius: 1.25rem;
+            margin: 0 auto 1.5rem;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: white;
+            box-shadow: 0 0 30px rgba(59, 130, 246, 0.25);
+            transform: rotate(3deg);
+            transition: transform 0.3s ease;
+
+            &:hover {
+                transform: rotate(6deg) scale(1.05);
+            }
+        }
+
+        .brand-title {
+            font-size: 2rem;
+            font-weight: 800;
+            color: var(--text-prominent, #fff);
+            letter-spacing: -0.05em;
+            margin: 0 0 0.5rem;
+            line-height: 1;
+
+            .highlight {
+                color: #3b82f6;
+            }
+        }
+
+        .brand-sub {
+            font-size: 0.65rem;
+            font-weight: 900;
+            color: var(--text-disabled, #475569);
+            text-transform: uppercase;
+            letter-spacing: 0.3em;
+            margin: 0;
+        }
+    }
+
+    .login-form {
+        display: flex;
+        flex-direction: column;
+        gap: 1.25rem;
+
+        .field-group {
+            display: flex;
+            flex-direction: column;
+            gap: 0.5rem;
+
+            label {
+                font-size: 0.65rem;
+                font-weight: 900;
+                color: var(--text-disabled, #475569);
+                text-transform: uppercase;
+                letter-spacing: 0.2em;
+                margin-left: 0.75rem;
+            }
+
+            .input-wrapper {
+                position: relative;
+
+                .input-icon {
+                    position: absolute;
+                    left: 1.25rem;
+                    top: 50%;
+                    transform: translateY(-50%);
+                    color: var(--text-disabled, #475569);
+                    transition: color 0.2s;
+                    pointer-events: none;
+                }
+
+                input {
+                    width: 100%;
+                    height: 3.5rem;
+                    background: rgba(255, 255, 255, 0.03);
+                    border: 1px solid rgba(255, 255, 255, 0.06);
+                    border-radius: 1.25rem;
+                    padding: 0 1.25rem 0 3.25rem;
+                    color: var(--text-prominent, #fff);
+                    font-family: 'IBM Plex Sans', sans-serif;
+                    font-size: 0.875rem;
+                    outline: none;
+                    transition: all 0.2s;
+                    box-sizing: border-box;
+
+                    &::placeholder {
+                        color: rgba(255, 255, 255, 0.15);
+                    }
+
+                    &:focus {
+                        border-color: rgba(59, 130, 246, 0.5);
+                        background: rgba(255, 255, 255, 0.05);
+
+                        & + .input-icon,
+                        ~ .input-icon {
+                            color: #3b82f6;
+                        }
+                    }
+
+                    &:focus ~ .input-icon,
+                    &:focus + .input-icon {
+                        color: #3b82f6;
+                    }
+                }
+
+                &:focus-within .input-icon {
+                    color: #3b82f6;
+                }
+            }
+        }
+
+        .error-box {
+            background: rgba(244, 63, 94, 0.08);
+            border: 1px solid rgba(244, 63, 94, 0.2);
+            border-radius: 1rem;
+            padding: 1rem 1.25rem;
+            color: #f87171;
+            font-size: 0.7rem;
+            font-weight: 700;
+            text-transform: uppercase;
+            letter-spacing: 0.05em;
+            text-align: center;
+        }
+
+        .login-btn {
+            width: 100%;
+            height: 3.5rem;
+            background: #3b82f6;
+            border: none;
+            border-radius: 1.25rem;
+            color: white;
+            font-family: 'IBM Plex Sans', sans-serif;
+            font-size: 0.7rem;
+            font-weight: 900;
+            text-transform: uppercase;
+            letter-spacing: 0.2em;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 0.75rem;
+            box-shadow: 0 10px 30px rgba(59, 130, 246, 0.25);
+            transition: all 0.3s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+            margin-top: 0.5rem;
+
+            &:hover:not(:disabled) {
+                background: #2563eb;
+                transform: translateY(-2px);
+                box-shadow: 0 15px 35px rgba(59, 130, 246, 0.35);
+            }
+
+            &:active:not(:disabled) {
+                transform: scale(0.98);
+            }
+
+            &:disabled {
+                opacity: 0.6;
+                cursor: not-allowed;
+            }
+
+            .spin {
+                animation: spin 1s linear infinite;
+            }
+        }
+    }
+
+    .login-footer {
+        margin-top: 2rem;
+        text-align: center;
+
+        p {
+            font-size: 0.65rem;
+            color: var(--text-disabled, #334155);
+            font-weight: 700;
+            text-transform: uppercase;
+            letter-spacing: 0.15em;
+            margin: 0;
+        }
+    }
+}
+
+@keyframes spin {
+    from { transform: rotate(0deg); }
+    to { transform: rotate(360deg); }
+}
+
+.admin-auth-loading {
+    min-height: 100vh;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    background: var(--general-main-1, #050505);
+}

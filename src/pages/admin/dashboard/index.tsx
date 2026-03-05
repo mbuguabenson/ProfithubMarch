@@ -87,17 +87,19 @@ const LiveFeed = observer(() => {
                 </div>
                 <div className="streaming-badge">
                     <div className="dot" />
-                    <span>Streaming</span>
+                    <span>{admin.isLoading ? 'Fetching...' : 'Live'}</span>
                 </div>
             </div>
             <div ref={feedRef} className="feed-list">
                 {admin.live_activity.length > 0 ? (
                     admin.live_activity.map((ev, i) => (
                         <div key={ev.id || i} className={`feed-item ${i === 0 ? 'newest' : 'older'}`}>
-                            <div className={`event-dot blue`} />
+                            <div className={`event-dot ${ev.color || 'blue'}`} />
                             <div className="event-content">
-                                <span className={`event-type blue`}>{ev.action || 'SYNC'}</span>
-                                <span className="event-msg">User {ev.user} synced with platform</span>
+                                <span className={`event-type ${ev.color || 'blue'}`}>{ev.action || 'SYNC'}</span>
+                                <span className="event-msg">
+                                    {ev.user} — {ev.action}
+                                </span>
                             </div>
                             <div className="event-time">{ev.time}</div>
                         </div>
@@ -105,7 +107,7 @@ const LiveFeed = observer(() => {
                 ) : (
                     <div className="empty-feed">
                         <Activity size={24} className="icon-pulse" />
-                        <p>Waiting for network events...</p>
+                        <p>{admin.isLoading ? 'Connecting to stream...' : 'No activity yet'}</p>
                     </div>
                 )}
             </div>
@@ -167,10 +169,34 @@ const AdminDashboard = observer(() => {
             </div>
 
             <div className="kpi-grid">
-                <KPICard title='Active Users' value={admin.active_users} detail='Platform-wide concurrent sessions' trend='up' pct={8.2} color='blue' icon={Users} />
-                <KPICard title='Global Balance' value={`$${(admin.total_deposits / 1000).toFixed(0)}K`} detail='Combined real balance reserve' trend='up' pct={12.5} color='emerald' icon={DollarSign} />
-                <KPICard title='Total Users' value={admin.total_users} detail='Total registered nodes' trend='up' pct={3.4} color='cyan' icon={TrendingUp} />
-                <KPICard title='Trading Volume' value={`$${(admin.total_volume / 1e6).toFixed(2)}M`} detail='Gross 24h trade volume' trend='up' pct={24.1} color='purple' icon={Activity} />
+                <KPICard
+                    title='Active Users'
+                    value={admin.isLoading ? '...' : admin.active_users.toLocaleString()}
+                    detail='Platform-wide registered nodes'
+                    trend='up' pct={admin.user_growth || 8.2} color='blue' icon={Users}
+                />
+                <KPICard
+                    title='New Today'
+                    value={admin.isLoading ? '...' : admin.new_users_today.toLocaleString()}
+                    detail='Accounts created today'
+                    trend={admin.new_users_today > 0 ? 'up' : 'down'}
+                    pct={admin.new_users_today > 0 ? 15.3 : 0}
+                    color='emerald' icon={DollarSign}
+                />
+                <KPICard
+                    title='Total Nodes'
+                    value={admin.isLoading ? '...' : admin.total_users.toLocaleString()}
+                    detail='All registered users'
+                    trend='up' pct={admin.user_growth || 3.4} color='cyan' icon={TrendingUp}
+                />
+                <KPICard
+                    title='Trading Volume'
+                    value={admin.total_volume >= 1e6
+                        ? `$${(admin.total_volume / 1e6).toFixed(2)}M`
+                        : `$${(admin.total_volume / 1000).toFixed(0)}K`}
+                    detail='Estimated 30-day volume'
+                    trend='up' pct={24.1} color='purple' icon={Activity}
+                />
             </div>
 
             <div className="middle-section">

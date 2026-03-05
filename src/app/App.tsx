@@ -8,6 +8,7 @@ import { crypto_currencies_display_order, fiat_currencies_display_order } from '
 import { StoreProvider } from '@/hooks/useStore';
 import CallbackPage from '@/pages/callback';
 import Endpoint from '@/pages/endpoint';
+import AdminAuthWrapper from '@/pages/admin/layout/AdminAuthWrapper';
 import { TAuthData } from '@/types/api-types';
 import { initializeI18n, TranslationProvider } from '@deriv-com/translations';
 import CoreStoreProvider from './CoreStoreProvider';
@@ -52,7 +53,7 @@ const router = createBrowserRouter(
                 </SuspenseWrapper>
             }
         >
-            <Route path='admin/*' element={<AdminLayout />} />
+            <Route path='admin/*' element={<AdminAuthWrapper><AdminLayout /></AdminAuthWrapper>} />
             <Route path='account' element={<AccountDashboard />} />
             <Route element={<Layout />}>
                 {/* All child routes will be passed as children to Layout */}
