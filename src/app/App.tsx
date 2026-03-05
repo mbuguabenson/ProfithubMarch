@@ -6,7 +6,6 @@ import InitialLoader from '@/components/loader/initial-loader';
 import RoutePromptDialog from '@/components/route-prompt-dialog';
 import { crypto_currencies_display_order, fiat_currencies_display_order } from '@/components/shared';
 import { StoreProvider } from '@/hooks/useStore';
-import AdminAuthWrapper from '@/pages/admin/layout/AdminAuthWrapper';
 import CallbackPage from '@/pages/callback';
 import Endpoint from '@/pages/endpoint';
 import { TAuthData } from '@/types/api-types';
@@ -16,8 +15,6 @@ import './app-root.scss';
 
 const Layout = lazy(() => import('../components/layout'));
 const AppRoot = lazy(() => import('./app-root'));
-const AdminLayout = lazy(() => import('../pages/admin/layout/admin-layout'));
-const AccountDashboard = lazy(() => import('../pages/account-dashboard'));
 const Reports = lazy(() => import('../pages/reports'));
 
 const { TRANSLATIONS_CDN_URL, R2_PROJECT_NAME, CROWDIN_BRANCH_NAME } = process.env;
@@ -55,16 +52,6 @@ const router = createBrowserRouter(
             }
             errorElement={<RouteErrorBoundary />}
         >
-            <Route
-                path='admin/*'
-                element={
-                    <AdminAuthWrapper>
-                        <AdminLayout />
-                    </AdminAuthWrapper>
-                }
-                errorElement={<RouteErrorBoundary />}
-            />
-            <Route path='account' element={<AccountDashboard />} errorElement={<RouteErrorBoundary />} />
             <Route path='reports' element={<Reports />} errorElement={<RouteErrorBoundary />} />
             <Route path='statement' element={<Reports />} errorElement={<RouteErrorBoundary />} />
             <Route path='profit' element={<Reports />} errorElement={<RouteErrorBoundary />} />
