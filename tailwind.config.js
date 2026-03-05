@@ -1,8 +1,6 @@
 /** @type {import('tailwindcss').Config} */
 export default {
-    content: [
-        "./src/**/*.{js,jsx,ts,tsx}",
-    ],
+    content: ['./src/**/*.{js,jsx,ts,tsx}'],
     theme: {
         extend: {
             colors: {
@@ -16,7 +14,7 @@ export default {
             },
             backdropBlur: {
                 xs: '2px',
-                'xl': '24px',
+                xl: '24px',
                 '2xl': '40px',
             },
             boxShadow: {
@@ -28,9 +26,9 @@ export default {
             },
             letterSpacing: {
                 tighter: '-0.05em',
-            }
+            },
         },
     },
     plugins: [],
     darkMode: 'class',
-}
+};

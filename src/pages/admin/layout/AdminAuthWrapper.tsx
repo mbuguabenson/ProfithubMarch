@@ -14,7 +14,9 @@ const AdminAuthWrapper: React.FC<AdminAuthWrapperProps> = ({ children }) => {
     useEffect(() => {
         const checkSession = async () => {
             try {
-                const { data: { session } } = await supabase.auth.getSession();
+                const {
+                    data: { session },
+                } = await supabase.auth.getSession();
                 setIsAuthenticated(!!session);
             } catch (error) {
                 console.error('[AdminAuth] Session check failed:', error);
@@ -26,7 +28,9 @@ const AdminAuthWrapper: React.FC<AdminAuthWrapperProps> = ({ children }) => {
 
         checkSession();
 
-        const { data: { subscription } } = supabase.auth.onAuthStateChange((_event, session) => {
+        const {
+            data: { subscription },
+        } = supabase.auth.onAuthStateChange((_event, session) => {
             setIsAuthenticated(!!session);
             setIsLoading(false);
         });
@@ -38,8 +42,8 @@ const AdminAuthWrapper: React.FC<AdminAuthWrapperProps> = ({ children }) => {
 
     if (isLoading) {
         return (
-            <div className="admin-auth-loading">
-                <ChunkLoader message="Verifying Administrative Credentials..." />
+            <div className='admin-auth-loading'>
+                <ChunkLoader message='Verifying Administrative Credentials...' />
             </div>
         );
     }

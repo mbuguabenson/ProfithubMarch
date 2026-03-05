@@ -1480,7 +1480,8 @@ export default class SmartTradingStore {
                 const targets = [most_appearing, second_most, least_appearing];
                 const increasing_target = targets.find(d => getPowerTrend(d) === 'increasing');
 
-                const isMarketRising = (this.percentages.rise || 0) > (this.percentages.fall || 0);
+                const isMarketRising =
+                    (this.root_store.analysis.percentages.rise || 0) > (this.root_store.analysis.percentages.fall || 0);
 
                 if (increasing_target !== undefined && isMarketRising) {
                     strategy.market_message = `TRADING MATCHES ${increasing_target}...`;

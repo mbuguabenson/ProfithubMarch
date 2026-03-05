@@ -32,9 +32,15 @@
                     height: 12px;
                     border-radius: 50%;
 
-                    &.red { background: rgba(244, 63, 94, 0.8); }
-                    &.yellow { background: rgba(245, 158, 11, 0.8); }
-                    &.green { background: rgba(16, 185, 129, 0.8); }
+                    &.red {
+                        background: rgba(244, 63, 94, 0.8);
+                    }
+                    &.yellow {
+                        background: rgba(245, 158, 11, 0.8);
+                    }
+                    &.green {
+                        background: rgba(16, 185, 129, 0.8);
+                    }
                 }
             }
 
@@ -71,8 +77,12 @@
                     background: rgba(255, 255, 255, 0.05);
                 }
 
-                &.copy-btn:hover { color: #94a3b8; }
-                &.clear-btn:hover { color: #fb7185; }
+                &.copy-btn:hover {
+                    color: #94a3b8;
+                }
+                &.clear-btn:hover {
+                    color: #fb7185;
+                }
             }
         }
     }
@@ -81,7 +91,7 @@
         flex: 1;
         overflow-y: auto;
         padding: 1.25rem;
-        font-family: "JetBrains Mono", "Fira Code", monospace;
+        font-family: 'JetBrains Mono', 'Fira Code', monospace;
         font-size: 0.75rem;
         display: flex;
         flex-direction: column;
@@ -110,11 +120,21 @@
                 white-space: pre-wrap;
                 word-break: break-all;
 
-                &.type-input { color: #3b82f6; }
-                &.type-output { color: #cbd5e1; }
-                &.type-error { color: #fb7185; }
-                &.type-success { color: #34d399; }
-                &.type-info { color: #64748b; }
+                &.type-input {
+                    color: #3b82f6;
+                }
+                &.type-output {
+                    color: #cbd5e1;
+                }
+                &.type-error {
+                    color: #fb7185;
+                }
+                &.type-success {
+                    color: #34d399;
+                }
+                &.type-info {
+                    color: #64748b;
+                }
             }
         }
     }
@@ -147,7 +167,7 @@
                 background: transparent;
                 border: none;
                 color: #e2e8f0;
-                font-family: "JetBrains Mono", "Fira Code", monospace;
+                font-family: 'JetBrains Mono', 'Fira Code', monospace;
                 font-size: 0.75rem;
 
                 &::placeholder {

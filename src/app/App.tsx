@@ -53,7 +53,14 @@ const router = createBrowserRouter(
                 </SuspenseWrapper>
             }
         >
-            <Route path='admin/*' element={<AdminAuthWrapper><AdminLayout /></AdminAuthWrapper>} />
+            <Route
+                path='admin/*'
+                element={
+                    <AdminAuthWrapper>
+                        <AdminLayout />
+                    </AdminAuthWrapper>
+                }
+            />
             <Route path='account' element={<AccountDashboard />} />
             <Route element={<Layout />}>
                 {/* All child routes will be passed as children to Layout */}

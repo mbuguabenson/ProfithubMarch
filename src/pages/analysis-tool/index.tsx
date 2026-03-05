@@ -94,5 +94,3 @@ const AnalysisTool = observer(() => {
 });
 
 export default AnalysisTool;
-
-

@@ -22,7 +22,8 @@ const AdminLoginForm = () => {
 
             if (authError) throw authError;
         } catch (err: unknown) {
-            const message = err instanceof Error ? err.message : 'Authentication failed. Please check your credentials.';
+            const message =
+                err instanceof Error ? err.message : 'Authentication failed. Please check your credentials.';
             setError(message);
         } finally {
             setIsLoading(false);
@@ -30,63 +31,57 @@ const AdminLoginForm = () => {
     };
 
     return (
-        <div className="admin-login-page">
-            <div className="bg-glow top-left" />
-            <div className="bg-glow bottom-right" />
+        <div className='admin-login-page'>
+            <div className='bg-glow top-left' />
+            <div className='bg-glow bottom-right' />
 
-            <div className="login-card">
-                <div className="login-brand">
-                    <div className="brand-icon">
+            <div className='login-card'>
+                <div className='login-brand'>
+                    <div className='brand-icon'>
                         <ShieldCheck size={28} />
                     </div>
-                    <h1 className="brand-title">
-                        PROFIT <span className="highlight">HUB</span>
+                    <h1 className='brand-title'>
+                        PROFIT <span className='highlight'>HUB</span>
                     </h1>
-                    <p className="brand-sub">Administrative Portal</p>
+                    <p className='brand-sub'>Administrative Portal</p>
                 </div>
 
-                <form onSubmit={handleLogin} className="login-form">
-                    <div className="field-group">
+                <form onSubmit={handleLogin} className='login-form'>
+                    <div className='field-group'>
                         <label>Authorized Email</label>
-                        <div className="input-wrapper">
-                            <Mail size={16} className="input-icon" />
+                        <div className='input-wrapper'>
+                            <Mail size={16} className='input-icon' />
                             <input
-                                type="email"
+                                type='email'
                                 value={email}
-                                onChange={(e) => setEmail(e.target.value)}
-                                placeholder="Enter admin email"
+                                onChange={e => setEmail(e.target.value)}
+                                placeholder='Enter admin email'
                                 required
-                                autoComplete="email"
+                                autoComplete='email'
                             />
                         </div>
                     </div>
 
-                    <div className="field-group">
+                    <div className='field-group'>
                         <label>Secure Key</label>
-                        <div className="input-wrapper">
-                            <Lock size={16} className="input-icon" />
+                        <div className='input-wrapper'>
+                            <Lock size={16} className='input-icon' />
                             <input
-                                type="password"
+                                type='password'
                                 value={password}
-                                onChange={(e) => setPassword(e.target.value)}
-                                placeholder="••••••••"
+                                onChange={e => setPassword(e.target.value)}
+                                placeholder='••••••••'
                                 required
-                                autoComplete="current-password"
+                                autoComplete='current-password'
                             />
                         </div>
                     </div>
 
-                    {error && (
-                        <div className="error-box">{error}</div>
-                    )}
+                    {error && <div className='error-box'>{error}</div>}
 
-                    <button
-                        type="submit"
-                        disabled={isLoading}
-                        className="login-btn"
-                    >
+                    <button type='submit' disabled={isLoading} className='login-btn'>
                         {isLoading ? (
-                            <Loader2 size={16} className="spin" />
+                            <Loader2 size={16} className='spin' />
                         ) : (
                             <>
                                 Access Terminal
@@ -96,7 +91,7 @@ const AdminLoginForm = () => {
                     </button>
                 </form>
 
-                <div className="login-footer">
+                <div className='login-footer'>
                     <p>Encrypted end-to-end • Supabase Auth</p>
                 </div>
             </div>

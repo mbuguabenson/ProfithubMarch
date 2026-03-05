@@ -1,7 +1,7 @@
 ﻿.account-dashboard-page {
     min-height: 100vh;
     background: var(--general-main-1);
-    background-image: 
+    background-image:
         radial-gradient(at 0% 0%, rgba(59, 130, 246, 0.03) 0px, transparent 50%),
         radial-gradient(at 100% 0%, rgba(168, 85, 247, 0.03) 0px, transparent 50%);
     color: var(--text-general);
@@ -9,7 +9,7 @@
     font-family: 'IBM Plex Sans', sans-serif;
     position: relative;
     overflow-x: hidden;
-    
+
     // Header Section
     .dashboard-header {
         display: flex;
@@ -34,8 +34,10 @@
         &::after {
             content: '';
             position: absolute;
-            top: -50%; right: -20%;
-            width: 500px; height: 500px;
+            top: -50%;
+            right: -20%;
+            width: 500px;
+            height: 500px;
             background: radial-gradient(circle, var(--brand-red-coral), transparent 70%);
             opacity: 0.03;
             pointer-events: none;
@@ -127,7 +129,8 @@
                     gap: 1.5rem;
                     flex-wrap: wrap;
 
-                    h1, input {
+                    h1,
+                    input {
                         font-size: 3.5rem;
                         font-weight: 800;
                         letter-spacing: -0.05em;
@@ -316,7 +319,7 @@
                 }
             }
         }
-        
+
         .header-stats {
             display: grid;
             grid-template-columns: repeat(4, 1fr);
@@ -324,7 +327,7 @@
             margin-top: 2rem;
             position: relative;
             z-index: 2;
-            
+
             @media (max-width: 1024px) {
                 grid-template-columns: repeat(2, 1fr);
             }
@@ -333,7 +336,7 @@
                 grid-template-columns: 1fr;
                 gap: 1.5rem;
             }
-            
+
             .stat-card {
                 padding: 1.75rem;
                 background: var(--general-section-1);
@@ -367,8 +370,10 @@
 
                 .glow {
                     position: absolute;
-                    top: -60px; right: -60px;
-                    width: 140px; height: 140px;
+                    top: -60px;
+                    right: -60px;
+                    width: 140px;
+                    height: 140px;
                     border-radius: 50%;
                     filter: blur(50px);
                     opacity: 0.05;
@@ -377,13 +382,22 @@
 
                 &:hover .glow {
                     opacity: 0.15;
-                    width: 180px; height: 180px;
+                    width: 180px;
+                    height: 180px;
                 }
 
-                .theme--dark &.blue .glow { background: #3b82f6; }
-                .theme--dark &.emerald .glow { background: #10b981; }
-                .theme--dark &.purple .glow { background: #a855f7; }
-                .theme--dark &.cyan .glow { background: #06b6d4; }
+                .theme--dark &.blue .glow {
+                    background: #3b82f6;
+                }
+                .theme--dark &.emerald .glow {
+                    background: #10b981;
+                }
+                .theme--dark &.purple .glow {
+                    background: #a855f7;
+                }
+                .theme--dark &.cyan .glow {
+                    background: #06b6d4;
+                }
 
                 .card-header {
                     display: flex;
@@ -430,7 +444,7 @@
                         }
                     }
                 }
-                
+
                 .label {
                     font-size: 0.8rem;
                     color: var(--text-less-prominent);
@@ -439,7 +453,7 @@
                     font-weight: 900;
                     margin-top: 0.5rem;
                 }
-                
+
                 .value {
                     font-size: 2.5rem;
                     font-weight: 800;
@@ -522,7 +536,7 @@
                     background: var(--brand-red-coral);
                     color: white;
                     box-shadow: 0 10px 20px rgba(255, 68, 72, 0.2);
-                    
+
                     svg {
                         transform: scale(1.2);
                     }
@@ -582,7 +596,16 @@
 }
 
 @keyframes pulse {
-    0% { opacity: 1; transform: scale(1); }
-    50% { opacity: 0.6; transform: scale(1.05); }
-    100% { opacity: 1; transform: scale(1); }
+    0% {
+        opacity: 1;
+        transform: scale(1);
+    }
+    50% {
+        opacity: 0.6;
+        transform: scale(1.05);
+    }
+    100% {
+        opacity: 1;
+        transform: scale(1);
+    }
 }

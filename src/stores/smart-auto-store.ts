@@ -44,6 +44,7 @@ export type TBotConfig = {
 
     // Advanced Over/Under Tracking
     power_history?: number[][];
+    symbol?: string;
 };
 // ... existing types ...
 
@@ -743,7 +744,7 @@ export default class SmartAutoStore {
             const stake = this.calculateStake(config);
             this.addLog(`Buying ${contract_type} for $${stake.toFixed(2)}`, 'trade');
 
-            const symbol = config.symbol || this.root_store.common.symbol || 'R_100';
+            const symbol = config.symbol || this.root_store.analysis.symbol || 'R_100';
             const proposal = (await apiBaseInstance.api.send({
                 proposal: 1,
                 amount: stake,

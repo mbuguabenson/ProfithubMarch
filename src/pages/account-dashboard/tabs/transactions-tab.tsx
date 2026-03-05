@@ -46,13 +46,17 @@ const TransactionsTab = observer(() => {
                         if (t.action_type === 'deposit') type = 'Deposit';
                         if (t.action_type === 'withdrawal') type = 'Withdrawal';
                         if (t.action_type === 'transfer') type = 'Transfer';
-                        
+
                         return {
                             id: t.transaction_id.toString(),
                             type,
                             amount: t.amount,
                             currency: client?.currency || 'USD',
-                            date: dateObj.toLocaleDateString(undefined, { month: 'short', day: '2-digit', year: 'numeric' }),
+                            date: dateObj.toLocaleDateString(undefined, {
+                                month: 'short',
+                                day: '2-digit',
+                                year: 'numeric',
+                            }),
                             time: dateObj.toLocaleTimeString('en-US', { hour12: false }),
                             status: 'Completed',
                             reference: t.reference_id?.toString() || t.transaction_id.toString(),
@@ -73,23 +77,24 @@ const TransactionsTab = observer(() => {
 
     const filtered = transactions.filter(tx => {
         const matchesType = filterType === 'All' || tx.type === filterType;
-        const matchesSearch = tx.description.toLowerCase().includes(search.toLowerCase()) ||
+        const matchesSearch =
+            tx.description.toLowerCase().includes(search.toLowerCase()) ||
             tx.reference.toLowerCase().includes(search.toLowerCase());
         return matchesType && matchesSearch;
     });
 
     return (
-        <div className="account-tab-wrapper">
-            <div className="tx-toolbar">
-                <div className="search-wrapper">
-                    <Search size={16} className="search-icon" />
+        <div className='account-tab-wrapper'>
+            <div className='tx-toolbar'>
+                <div className='search-wrapper'>
+                    <Search size={16} className='search-icon' />
                     <input
-                        placeholder="Filter transactions, assets, references…"
+                        placeholder='Filter transactions, assets, references…'
                         value={search}
                         onChange={e => setSearch(e.target.value)}
                     />
                 </div>
-                <div className="filter-group">
+                <div className='filter-group'>
                     {(['All', 'Deposit', 'Withdrawal', 'Trade', 'Transfer'] as const).map(type => (
                         <button
                             key={type}
@@ -102,14 +107,16 @@ const TransactionsTab = observer(() => {
                 </div>
             </div>
 
-            <div className="tx-list">
+            <div className='tx-list'>
                 {loading ? (
-                    Array(8).fill(0).map((_, i) => (
-                        <div key={i} className="tx-item skeleton" style={{ height: '84px', opacity: 0.2 }} />
-                    ))
+                    Array(8)
+                        .fill(0)
+                        .map((_, i) => (
+                            <div key={i} className='tx-item skeleton' style={{ height: '84px', opacity: 0.2 }} />
+                        ))
                 ) : filtered.length === 0 ? (
-                    <div className="empty-state">
-                        <div className="icon-glow" />
+                    <div className='empty-state'>
+                        <div className='icon-glow' />
                         <Filter size={48} />
                         <p>No transactions match your search</p>
                     </div>
@@ -119,30 +126,35 @@ const TransactionsTab = observer(() => {
                         const Icon = meta.icon;
                         const isPositive = tx.amount >= 0;
                         return (
-                            <div key={tx.id} className="tx-item hoverable" style={{ animationDelay: `${i * 40}ms` }}>
+                            <div key={tx.id} className='tx-item hoverable' style={{ animationDelay: `${i * 40}ms` }}>
                                 <div className={`tx-icon color-${meta.color}`}>
                                     <Icon size={18} />
                                 </div>
-                                <div className="tx-details">
-                                    <p className="tx-desc" title={tx.description}>{tx.description}</p>
-                                    <div className="tx-meta">
+                                <div className='tx-details'>
+                                    <p className='tx-desc' title={tx.description}>
+                                        {tx.description}
+                                    </p>
+                                    <div className='tx-meta'>
                                         <span>{tx.date}</span>
-                                        <span className="dot" />
+                                        <span className='dot' />
                                         <span>{tx.time}</span>
-                                        <span className="dot" />
-                                        <span className="ref-tag">Ref: {tx.reference}</span>
+                                        <span className='dot' />
+                                        <span className='ref-tag'>Ref: {tx.reference}</span>
                                     </div>
                                 </div>
-                                <div className="tx-amounts">
+                                <div className='tx-amounts'>
                                     <p className={`tx-val ${isPositive ? 'positive' : 'neutral'}`}>
-                                        {isPositive ? '+' : ''}{tx.amount.toLocaleString(undefined, { minimumFractionDigits: 2 })} {tx.currency}
+                                        {isPositive ? '+' : ''}
+                                        {tx.amount.toLocaleString(undefined, { minimumFractionDigits: 2 })}{' '}
+                                        {tx.currency}
                                     </p>
-                                    <p className="tx-bal">
-                                        <span className="label">Balance:</span> {tx.currency} {tx.balance_after.toLocaleString(undefined, { minimumFractionDigits: 2 })}
+                                    <p className='tx-bal'>
+                                        <span className='label'>Balance:</span> {tx.currency}{' '}
+                                        {tx.balance_after.toLocaleString(undefined, { minimumFractionDigits: 2 })}
                                     </p>
                                 </div>
                                 <div className={`tx-status ${tx.status}`}>
-                                    <div className="status-dot" />
+                                    <div className='status-dot' />
                                     {tx.status}
                                 </div>
                             </div>

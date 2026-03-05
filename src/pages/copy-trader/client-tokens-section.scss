@@ -95,9 +95,15 @@
                     width: 8px;
                     height: 8px;
                     border-radius: 50%;
-                    &.connected { background: #10b981; }
-                    &.connecting { background: #f59e0b; }
-                    &.idle { background: #94a3b8; }
+                    &.connected {
+                        background: #10b981;
+                    }
+                    &.connecting {
+                        background: #f59e0b;
+                    }
+                    &.idle {
+                        background: #94a3b8;
+                    }
                 }
 
                 .remove-btn {
@@ -120,8 +126,12 @@
                 .info-item {
                     display: flex;
                     gap: 0.5rem;
-                    .label { color: var(--text-less-prominent); }
-                    .value { font-weight: 700; }
+                    .label {
+                        color: var(--text-less-prominent);
+                    }
+                    .value {
+                        font-weight: 700;
+                    }
                 }
             }
 
@@ -140,13 +150,13 @@
                     background: rgba(255, 255, 255, 0.1);
                 }
             }
-            
+
             .trading-stats {
                 display: grid;
                 grid-template-columns: repeat(3, 1fr);
                 gap: 0.5rem;
                 font-size: 1rem;
-                
+
                 .stat {
                     display: flex;
                     flex-direction: column;
@@ -154,9 +164,14 @@
                     background: rgba(255, 255, 255, 0.03);
                     padding: 0.4rem;
                     border-radius: 0.4rem;
-                    
-                    .stat-label { color: var(--text-less-prominent); margin-bottom: 0.2rem; }
-                    .stat-value { font-weight: 700; }
+
+                    .stat-label {
+                        color: var(--text-less-prominent);
+                        margin-bottom: 0.2rem;
+                    }
+                    .stat-value {
+                        font-weight: 700;
+                    }
                 }
             }
         }

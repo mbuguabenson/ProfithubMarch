@@ -227,7 +227,6 @@ const CoreStoreProvider: React.FC<{ children: React.ReactNode }> = observer(({ c
                     });
             });
 
-
             api_base.api.getAccountStatus().then((res: TSocketResponseData<'get_account_status'>) => {
                 client?.setAccountStatus(res.get_account_status);
             });

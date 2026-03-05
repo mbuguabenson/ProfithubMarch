@@ -50,7 +50,15 @@ const TradingTools = () => {
     const [activeTab, setActiveTab] = React.useState<'smartauto' | 'digitcracker'>('smartauto');
     return (
         <div style={{ display: 'flex', flexDirection: 'column', height: '100%' }}>
-            <div style={{ display: 'flex', gap: '8px', padding: '12px 16px', background: 'var(--general-section-1)', borderBottom: '1px solid var(--general-section-2)' }}>
+            <div
+                style={{
+                    display: 'flex',
+                    gap: '8px',
+                    padding: '12px 16px',
+                    background: 'var(--general-section-1)',
+                    borderBottom: '1px solid var(--general-section-2)',
+                }}
+            >
                 <button
                     onClick={() => setActiveTab('smartauto')}
                     style={{
@@ -74,7 +82,8 @@ const TradingTools = () => {
                         border: 'none',
                         cursor: 'pointer',
                         fontWeight: 600,
-                        background: activeTab === 'digitcracker' ? 'var(--brand-red-coral)' : 'var(--general-section-2)',
+                        background:
+                            activeTab === 'digitcracker' ? 'var(--brand-red-coral)' : 'var(--general-section-2)',
                         color: activeTab === 'digitcracker' ? '#fff' : 'var(--text-general)',
                         transition: 'all 0.2s',
                     }}
@@ -491,7 +500,9 @@ const AppWrapper = observer(() => {
                                     id='id-strategies'
                                 >
                                     <PageContentWrapper>
-                                        <Suspense fallback={<ChunkLoader message={localize('Loading Strategies...')} />}>
+                                        <Suspense
+                                            fallback={<ChunkLoader message={localize('Loading Strategies...')} />}
+                                        >
                                             <Strategies />
                                         </Suspense>
                                     </PageContentWrapper>

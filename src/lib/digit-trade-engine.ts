@@ -288,7 +288,7 @@ export class DigitTradeEngine {
         symbol: string,
         currency: string
     ) => {
-        let prediction = config.prediction;
+        const prediction = config.prediction;
         if (percentages.under > 55 && this.consecutive_under >= 1) {
             this.executeTrade('DIGITUNDER', prediction, config, symbol, currency);
         } else if (percentages.over > 55 && this.consecutive_over >= 1) {

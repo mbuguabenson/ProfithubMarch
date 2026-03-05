@@ -100,15 +100,18 @@ export default class DigitCrackerStore {
             };
             if (response.active_symbols) {
                 const grouped = Object.values(
-                    response.active_symbols.reduce((acc: any, s: any) => {
-                        const market = s.market_display_name || s.market;
-                        if (!acc[market]) acc[market] = { group: market, items: [] };
-                        acc[market].items.push({ value: s.symbol, label: s.display_name });
-                        return acc;
-                    }, {})
+                    response.active_symbols.reduce(
+                        (acc: Record<string, any>, s: any) => {
+                            const market = s.market_display_name || s.market;
+                            if (!acc[market]) acc[market] = { group: market, items: [] };
+                            acc[market].items.push({ value: s.symbol, label: s.display_name });
+                            return acc;
+                        },
+                        {} as Record<string, any>
+                    )
                 );
                 runInAction(() => {
-                    this.markets = grouped;
+                    this.markets = grouped as { group: string; items: { value: string; label: string }[] }[];
                 });
             }
         } catch (e) {

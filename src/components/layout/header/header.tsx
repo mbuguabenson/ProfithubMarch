@@ -96,7 +96,6 @@ const AppHeader = observer(({ isAuthenticating }: TAppHeaderProps) => {
                         ))}
 
                     <AccountSwitcher activeAccount={activeAccount} />
-
                 </>
             );
         } else {
@@ -176,9 +175,9 @@ const AppHeader = observer(({ isAuthenticating }: TAppHeaderProps) => {
                 >
                     <LegacyWhatsappIcon className='app-header__whatsapp-icon' />
                 </a>
-                
+
                 {/* Account Hub Link */}
-                <button 
+                <button
                     onClick={() => navigate('/account')}
                     className='app-header__account-link'
                     style={{
