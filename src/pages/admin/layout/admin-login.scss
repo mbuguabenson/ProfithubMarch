@@ -41,11 +41,11 @@
         position: relative;
         z-index: 10;
         background: var(--general-main-2, #0b0f19);
-        border: 1px solid rgba(255, 255, 255, 0.06);
+        border: 1px solid rgba(255, 255, 255, 0.08);
         border-radius: 2.5rem;
         padding: 3rem 2.5rem;
-        box-shadow: 0 40px 80px rgba(0, 0, 0, 0.4);
-        backdrop-filter: blur(20px);
+        box-shadow: 0 40px 100px rgba(0, 0, 0, 0.6);
+        backdrop-filter: blur(30px);
     }
 
     .login-brand {
@@ -179,6 +179,13 @@
             text-align: center;
         }
 
+        .recovery-hint {
+            font-size: 0.65rem;
+            color: #94a3b8;
+            margin: 0.5rem 0 0 0.75rem;
+            font-style: italic;
+        }
+
         .login-btn {
             width: 100%;
             height: 3.5rem;
@@ -243,6 +250,21 @@
     to {
         transform: rotate(360deg);
     }
+}
+
+@keyframes fadeIn {
+    from {
+        opacity: 0;
+        transform: translateY(10px);
+    }
+    to {
+        opacity: 1;
+        transform: translateY(0);
+    }
+}
+
+.animate-fade-in {
+    animation: fadeIn 0.4s ease forwards;
 }
 
 .admin-auth-loading {

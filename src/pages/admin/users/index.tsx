@@ -14,6 +14,7 @@ import {
     TrendingDown,
     AlertTriangle,
     RefreshCw,
+    UserPlus,
 } from 'lucide-react';
 import { observer } from 'mobx-react-lite';
 import { LineChart, Line, ResponsiveContainer, Tooltip } from 'recharts';
@@ -193,6 +194,65 @@ const UserDetailPanel = ({
     </div>
 );
 
+// ----------- Add User Modal -----------
+const AddUserModal = ({ 
+    onClose, 
+    onAdd 
+}: { 
+    onClose: () => void; 
+    onAdd: (email: string, role: 'Admin' | 'User') => Promise<void> 
+}) => {
+    const [email, setEmail] = useState('');
+    const [role, setRole] = useState<'Admin' | 'User'>('User');
+    const [isSubmitting, setIsSubmitting] = useState(false);
+
+    const handleSubmit = async (e: React.FormEvent) => {
+        e.preventDefault();
+        setIsSubmitting(true);
+        await onAdd(email, role);
+        setIsSubmitting(false);
+        onClose();
+    };
+
+    return (
+        <div className='user-detail-overlay' onClick={onClose}>
+            <div className='user-detail-panel' onClick={e => e.stopPropagation()}>
+                <div className='panel-header'>
+                    <h3>Add New Node</h3>
+                    <button onClick={onClose}><X size={16} /></button>
+                </div>
+                <form className='panel-content' onSubmit={handleSubmit}>
+                    <div className='field-group' style={{ marginBottom: '1.5rem' }}>
+                        <label style={{ display: 'block', marginBottom: '0.5rem', fontSize: '0.65rem', fontWeight: 900, color: '#475569', textTransform: 'uppercase', letterSpacing: '0.1em' }}>Email Address</label>
+                        <input 
+                            type='email' 
+                            value={email} 
+                            onChange={e => setEmail(e.target.value)}
+                            required
+                            placeholder='user@example.com'
+                            style={{ width: '100%', background: 'rgba(255,255,255,0.03)', border: '1px solid rgba(255,255,255,0.1)', borderRadius: '12px', padding: '1rem', color: '#fff', outline: 'none' }}
+                        />
+                    </div>
+                    <div className='field-group' style={{ marginBottom: '2rem' }}>
+                        <label style={{ display: 'block', marginBottom: '0.5rem', fontSize: '0.65rem', fontWeight: 900, color: '#475569', textTransform: 'uppercase', letterSpacing: '0.1em' }}>Security Clearance (Role)</label>
+                        <select 
+                            value={role} 
+                            onChange={e => setRole(e.target.value as 'Admin' | 'User')}
+                            style={{ width: '100%', background: 'rgba(255,255,255,0.03)', border: '1px solid rgba(255,255,255,0.1)', borderRadius: '12px', padding: '1rem', color: '#fff', outline: 'none' }}
+                        >
+                            <option value='User'>Standard User</option>
+                            <option value='Admin'>System Administrator</option>
+                        </select>
+                    </div>
+                    <button type='submit' disabled={isSubmitting} className='control-btn whitelist' style={{ width: '100%', justifyContent: 'center', padding: '1rem' }}>
+                        {isSubmitting ? 'Provisioning...' : 'Add Registry Node'}
+                    </button>
+                </form>
+            </div>
+        </div>
+    );
+};
+
 // ----------- Main Users Page -----------
 type UserFilter = 'All' | 'New' | 'Blocked' | 'Real' | 'Demo';
 
@@ -201,6 +261,7 @@ const AdminUsers = observer(() => {
     const [search, setSearch] = useState('');
     const [filter, setFilter] = useState<UserFilter>('All');
     const [selected, setSelected] = useState<PlatformUser | null>(null);
+    const [isAddModalOpen, setIsAddModalOpen] = useState(false);
 
     const users = admin.users;
 
@@ -239,6 +300,10 @@ const AdminUsers = observer(() => {
         setSelected(null);
     };
 
+    const handleAddUser = async (email: string, role: 'Admin' | 'User') => {
+        await admin.addUser(email, role);
+    };
+
     return (
         <div className='admin-users-page'>
             {/* Header */}
@@ -249,29 +314,55 @@ const AdminUsers = observer(() => {
                 <p className='subtitle'>
                     Platform kernel registry • {admin.isLoading ? 'Loading...' : `${users.length} registered nodes`}
                 </p>
-                <button
-                    onClick={() => admin.fetchPlatformData()}
-                    style={{
-                        marginTop: '1rem',
-                        display: 'inline-flex',
-                        alignItems: 'center',
-                        gap: '0.5rem',
-                        padding: '0.5rem 1.5rem',
-                        background: 'rgba(255,255,255,0.05)',
-                        border: '1px solid rgba(255,255,255,0.08)',
-                        borderRadius: '12px',
-                        color: '#94a3b8',
-                        fontSize: '0.7rem',
-                        fontWeight: 700,
-                        textTransform: 'uppercase',
-                        letterSpacing: '0.1em',
-                        cursor: 'pointer',
-                        transition: 'all 0.2s',
-                    }}
-                >
-                    <RefreshCw size={12} className={admin.isLoading ? 'spin' : ''} />
-                    Refresh
-                </button>
+                <div style={{ display: 'flex', gap: '1rem' }}>
+                    <button
+                        onClick={() => admin.fetchPlatformData()}
+                        style={{
+                            marginTop: '1rem',
+                            display: 'inline-flex',
+                            alignItems: 'center',
+                            gap: '0.5rem',
+                            padding: '0.5rem 1.5rem',
+                            background: 'rgba(255,255,255,0.05)',
+                            border: '1px solid rgba(255,255,255,0.08)',
+                            borderRadius: '12px',
+                            color: '#94a3b8',
+                            fontSize: '0.7rem',
+                            fontWeight: 700,
+                            textTransform: 'uppercase',
+                            letterSpacing: '0.1em',
+                            cursor: 'pointer',
+                            transition: 'all 0.2s',
+                        }}
+                    >
+                        <RefreshCw size={12} className={admin.isLoading ? 'spin' : ''} />
+                        Refresh
+                    </button>
+                    <button
+                        onClick={() => setIsAddModalOpen(true)}
+                        style={{
+                            marginTop: '1rem',
+                            display: 'inline-flex',
+                            alignItems: 'center',
+                            gap: '0.5rem',
+                            padding: '0.5rem 1.5rem',
+                            background: 'linear-gradient(135deg, #3b82f6, #06b6d4)',
+                            border: 'none',
+                            borderRadius: '12px',
+                            color: '#fff',
+                            fontSize: '0.7rem',
+                            fontWeight: 700,
+                            textTransform: 'uppercase',
+                            letterSpacing: '0.1em',
+                            cursor: 'pointer',
+                            transition: 'all 0.2s',
+                            boxShadow: '0 4px 12px rgba(59, 130, 246, 0.2)',
+                        }}
+                    >
+                        <UserPlus size={12} />
+                        Add User
+                    </button>
+                </div>
             </div>
 
             {/* Filter Badges */}
@@ -403,6 +494,9 @@ const AdminUsers = observer(() => {
 
             {/* Detail Panel */}
             {selected && <UserDetailPanel user={selected} onClose={() => setSelected(null)} onAction={handleAction} />}
+
+            {/* Add User Modal */}
+            {isAddModalOpen && <AddUserModal onClose={() => setIsAddModalOpen(false)} onAdd={handleAddUser} />}
         </div>
     );
 });

@@ -20,6 +20,7 @@ export interface PlatformUser {
     balanceHistory: number[];
     trades: number;
     winRate: number;
+    role: 'Admin' | 'User';
 }
 
 function getRelativeTime(dateStr: string): string {
@@ -133,6 +134,7 @@ export default class AdminStore {
             fetchPlatformData: action,
             blockUser: action,
             whitelistUser: action,
+            addUser: action,
         });
 
         this.fetchPlatformData();
@@ -188,11 +190,14 @@ export default class AdminStore {
                 .limit(100);
 
             if (!allUsersError && allUsers) {
-                // Check user_flags table for blocked/whitelisted status
-                const { data: flags } = await supabase.from('user_flags').select('loginid, status');
+                // Check user_flags table for blocked/whitelisted status and roles
+                const { data: flags } = await supabase.from('user_flags').select('loginid, status, role');
 
-                const flagsMap = new Map<string, string>(
-                    (flags || []).map((f: { loginid: string; status: string }) => [f.loginid, f.status])
+                const flagsMap = new Map<string, { status: string; role: string }>(
+                    (flags || []).map((f: { loginid: string; status: string; role: string }) => [
+                        f.loginid,
+                        { status: f.status, role: f.role },
+                    ])
                 );
 
                 const tomorrow = new Date();
@@ -212,8 +217,9 @@ export default class AdminStore {
                             email: (u.email as string) || 'N/A',
                             avatar: ((u.email as string)?.[0] || (u.loginid as string)?.[0] || 'U').toUpperCase(),
                             status:
-                                (flaggedStatus as 'Active' | 'Blocked' | 'Pending') ||
+                                (flaggedStatus?.status as 'Active' | 'Blocked' | 'Pending') ||
                                 (createdAt && new Date(createdAt) > todayStart ? 'Pending' : 'Active'),
+                            role: (flaggedStatus?.role as 'Admin' | 'User') || 'User',
                             type: isReal ? 'Real' : 'Demo',
                             balance: 0,
                             country: (u.country as string) || '—',
@@ -311,6 +317,46 @@ export default class AdminStore {
             });
         } catch (e) {
             console.error('[AdminStore] whitelistUser failed:', e);
+        }
+    }
+
+    async addUser(email: string, role: 'Admin' | 'User') {
+        try {
+            // In a real scenario, we'd use supabase.auth.admin.createUser
+            // But for this simulation/integration, we'll record the intent
+            // and add it to our local state/monitoring table if permitted.
+            const { data, error } = await supabase
+                .from('user_monitoring')
+                .insert([
+                    {
+                        email,
+                        loginid: `USR${Math.floor(1000 + Math.random() * 9000)}`,
+                        created_at: new Date().toISOString(),
+                        updated_at: new Date().toISOString(),
+                    },
+                ])
+                .select();
+
+            if (error) throw error;
+
+            if (data && data[0]) {
+                // Also set the role flag
+                await supabase.from('user_flags').upsert(
+                    {
+                        loginid: data[0].loginid,
+                        status: 'Active',
+                        role,
+                        updated_at: new Date().toISOString(),
+                    },
+                    { onConflict: 'loginid' }
+                );
+            }
+
+            await this.fetchPlatformData();
+            return { success: true };
+        } catch (e) {
+            console.error('[AdminStore] addUser failed:', e);
+            return { success: false, error: e };
         }
     }
 
