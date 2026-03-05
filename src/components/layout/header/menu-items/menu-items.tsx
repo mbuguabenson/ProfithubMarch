@@ -30,17 +30,25 @@ export const MenuItems = observer(() => {
 
     // Use handleTraderHubRedirect for all links
     const getModifiedHref = (originalHref: string) => {
-        const redirect_url = new URL(originalHref);
+        try {
+            // Provide a base URL to handle relative paths safely
+            const isRelative = originalHref.startsWith('/');
+            const base = isRelative ? window.location.origin : undefined;
+            const redirect_url = new URL(originalHref, base);
 
-        if (is_virtual) {
-            // For demo accounts, set the account parameter to 'demo'
-            redirect_url.searchParams.set('account', 'demo');
-        } else if (currency) {
-            // For real accounts, set the account parameter to the currency
-            redirect_url.searchParams.set('account', currency);
+            if (is_virtual) {
+                // For demo accounts, set the account parameter to 'demo'
+                redirect_url.searchParams.set('account', 'demo');
+            } else if (currency) {
+                // For real accounts, set the account parameter to the currency
+                redirect_url.searchParams.set('account', currency);
+            }
+
+            // Return relative path if it was originally relative, otherwise return full string
+            return isRelative ? `${redirect_url.pathname}${redirect_url.search}${redirect_url.hash}` : redirect_url.toString();
+        } catch (error) {
+            return originalHref;
         }
-
-        return redirect_url.toString();
     };
 
     // Filter out the Cashier link when the account is a wallet account
