@@ -1,0 +1,177 @@
+.trading-console {
+    position: relative;
+    overflow: hidden;
+    border-radius: 24px;
+    border: 1px solid rgba(255, 255, 255, 0.05);
+    background: #060b0f;
+    display: flex;
+    flex-direction: column;
+    height: 100%;
+    min-height: 500px;
+    font-family: 'Inter', sans-serif;
+
+    .console-header {
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        padding: 0.75rem 1.25rem;
+        border-bottom: 1px solid rgba(255, 255, 255, 0.05);
+        background: rgba(255, 255, 255, 0.01);
+
+        .header-left {
+            display: flex;
+            align-items: center;
+            gap: 0.75rem;
+
+            .window-controls {
+                display: flex;
+                gap: 0.375rem;
+
+                .dot {
+                    width: 12px;
+                    height: 12px;
+                    border-radius: 50%;
+
+                    &.red { background: rgba(244, 63, 94, 0.8); }
+                    &.yellow { background: rgba(245, 158, 11, 0.8); }
+                    &.green { background: rgba(16, 185, 129, 0.8); }
+                }
+            }
+
+            .title-box {
+                display: flex;
+                align-items: center;
+                gap: 0.5rem;
+                color: #64748b;
+
+                .title-text {
+                    font-size: 0.625rem;
+                    font-weight: 900;
+                    text-transform: uppercase;
+                    letter-spacing: 3px;
+                }
+            }
+        }
+
+        .header-right {
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+
+            .action-btn {
+                padding: 0.375rem;
+                border-radius: 8px;
+                background: transparent;
+                border: none;
+                color: #475569;
+                cursor: pointer;
+                transition: all 0.3s ease;
+
+                &:hover {
+                    background: rgba(255, 255, 255, 0.05);
+                }
+
+                &.copy-btn:hover { color: #94a3b8; }
+                &.clear-btn:hover { color: #fb7185; }
+            }
+        }
+    }
+
+    .console-output {
+        flex: 1;
+        overflow-y: auto;
+        padding: 1.25rem;
+        font-family: "JetBrains Mono", "Fira Code", monospace;
+        font-size: 0.75rem;
+        display: flex;
+        flex-direction: column;
+        gap: 0.125rem;
+
+        .output-line {
+            display: flex;
+            gap: 0.75rem;
+            padding: 0.25rem 0.5rem;
+            border-radius: 4px;
+            line-height: 1.6;
+            transition: background 0.2s ease;
+
+            &:hover {
+                background: rgba(255, 255, 255, 0.01);
+            }
+
+            .timestamp {
+                color: #334155;
+                user-select: none;
+                flex-shrink: 0;
+            }
+
+            .line-text {
+                flex: 1;
+                white-space: pre-wrap;
+                word-break: break-all;
+
+                &.type-input { color: #3b82f6; }
+                &.type-output { color: #cbd5e1; }
+                &.type-error { color: #fb7185; }
+                &.type-success { color: #34d399; }
+                &.type-info { color: #64748b; }
+            }
+        }
+    }
+
+    .console-input-area {
+        border-top: 1px solid rgba(255, 255, 255, 0.05);
+        padding: 1rem;
+
+        .input-wrapper {
+            display: flex;
+            align-items: center;
+            gap: 0.75rem;
+            background: rgba(255, 255, 255, 0.02);
+            border: 1px solid rgba(255, 255, 255, 0.05);
+            border-radius: 12px;
+            padding: 0.75rem 1rem;
+            transition: all 0.3s ease;
+
+            &:focus-within {
+                border-color: rgba(59, 130, 246, 0.3);
+            }
+
+            .prompt-icon {
+                color: #3b82f6;
+                flex-shrink: 0;
+            }
+
+            input {
+                flex: 1;
+                background: transparent;
+                border: none;
+                color: #e2e8f0;
+                font-family: "JetBrains Mono", "Fira Code", monospace;
+                font-size: 0.75rem;
+
+                &::placeholder {
+                    color: #334155;
+                }
+
+                &:focus {
+                    outline: none;
+                }
+            }
+
+            .submit-btn {
+                padding: 0.375rem;
+                border-radius: 8px;
+                background: rgba(59, 130, 246, 0.1);
+                border: none;
+                color: #3b82f6;
+                cursor: pointer;
+                transition: all 0.3s ease;
+
+                &:hover {
+                    background: rgba(59, 130, 246, 0.2);
+                }
+            }
+        }
+    }
+}

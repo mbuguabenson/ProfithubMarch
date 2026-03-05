@@ -3,6 +3,7 @@ import { AuthWrapper } from './app/AuthWrapper';
 import { AnalyticsInitializer } from './utils/analytics';
 import { registerPWA } from './utils/pwa-utils';
 import './styles/index.scss';
+import './tailwind.css';
 
 AnalyticsInitializer();
 registerPWA()

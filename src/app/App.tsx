@@ -1,7 +1,7 @@
 import { initSurvicate } from '../public-path';
 import { lazy, Suspense } from 'react';
 import React from 'react';
-import { createBrowserRouter, createRoutesFromElements, Route, RouterProvider } from 'react-router-dom';
+import { createBrowserRouter, createRoutesFromElements, Route, RouterProvider, Outlet } from 'react-router-dom';
 import InitialLoader from '@/components/loader/initial-loader';
 import RoutePromptDialog from '@/components/route-prompt-dialog';
 import { crypto_currencies_display_order, fiat_currencies_display_order } from '@/components/shared';
@@ -15,6 +15,8 @@ import './app-root.scss';
 
 const Layout = lazy(() => import('../components/layout'));
 const AppRoot = lazy(() => import('./app-root'));
+const AdminLayout = lazy(() => import('../pages/admin/layout/admin-layout'));
+const AccountDashboard = lazy(() => import('../pages/account-dashboard'));
 
 const { TRANSLATIONS_CDN_URL, R2_PROJECT_NAME, CROWDIN_BRANCH_NAME } = process.env;
 // Only use CDN URL if all required variables are present and not empty
@@ -43,17 +45,21 @@ const router = createBrowserRouter(
                         <StoreProvider>
                             <RoutePromptDialog />
                             <CoreStoreProvider>
-                                <Layout />
+                                <Outlet />
                             </CoreStoreProvider>
                         </StoreProvider>
                     </TranslationProvider>
                 </SuspenseWrapper>
             }
         >
-            {/* All child routes will be passed as children to Layout */}
-            <Route index element={<AppRoot />} />
-            <Route path='endpoint' element={<Endpoint />} />
-            <Route path='callback' element={<CallbackPage />} />
+            <Route path='admin/*' element={<AdminLayout />} />
+            <Route path='account' element={<AccountDashboard />} />
+            <Route element={<Layout />}>
+                {/* All child routes will be passed as children to Layout */}
+                <Route index element={<AppRoot />} />
+                <Route path='endpoint' element={<Endpoint />} />
+                <Route path='callback' element={<CallbackPage />} />
+            </Route>
         </Route>
     ),
     {

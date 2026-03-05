@@ -1,215 +1,296 @@
-import React, { useMemo,useState } from 'react';
-import classNames from 'classnames';
-import { observer } from 'mobx-react-lite';
+import React, { useState, useMemo } from 'react';
 import {
-    LabelPairedArrowDownCaptionRegularIcon,
-    LabelPairedCirclePlusCaptionRegularIcon,
-    LabelPairedCircleUserSlashCaptionRegularIcon,
-    LabelPairedMagnifyingGlassPlusCaptionRegularIcon,
-    LabelPairedMoneyBillCaptionRegularIcon,
-    LabelPairedPenCaptionRegularIcon,
-} from '@deriv/quill-icons/LabelPaired';
+    Search, ShieldCheck, ShieldX,
+    User, MapPin, Smartphone, Clock, Globe, ChevronRight,
+    X, TrendingUp, TrendingDown, AlertTriangle,
+} from 'lucide-react';
+import { LineChart, Line, ResponsiveContainer, Tooltip } from 'recharts';
+import '../admin-users.scss';
 
-const UsersManagement = observer(() => {
-    const [searchTerm, setSearchTerm] = useState('');
-    const [filterType, setFilterType] = useState('All');
+// ----------- Mock Data -----------
+interface PlatformUser {
+    id: string;
+    name: string;
+    email: string;
+    avatar: string;
+    status: 'Active' | 'Blocked' | 'Pending';
+    type: 'Real' | 'Demo';
+    balance: number;
+    country: string;
+    city: string;
+    ip: string;
+    device: string;
+    browser: string;
+    joined: string;
+    lastSeen: string;
+    trades: number;
+    winRate: number;
+    isNew: boolean;
+    balanceHistory: number[];
+}
 
-    // Simulated real users data
-    const users = useMemo(() => [
-        { id: 'CR1001', name: 'Mbugua Benson', email: 'benson@profithub.com', type: 'Real', balance: 15420.50, status: 'Active', joined: '2024-01-15', avatar: 'https://i.pravatar.cc/150?u=benson' },
-        { id: 'CR1002', name: 'Sarah Jenkins', email: 'sarah@example.com', type: 'Real', balance: 5200.00, status: 'Active', joined: '2024-02-01', avatar: 'https://i.pravatar.cc/150?u=sarah' },
-        { id: 'VR2001', name: 'Alex Kumar', email: 'alex@demo.com', type: 'Demo', balance: 10000.00, status: 'Active', joined: '2024-02-10', avatar: 'https://i.pravatar.cc/150?u=alex' },
-        { id: 'CR1003', name: 'Wilson Ng', email: 'wilson@corp.com', type: 'Real', balance: 450.75, status: 'Suspended', joined: '2023-11-20', avatar: 'https://i.pravatar.cc/150?u=wilson' },
-        { id: 'CR1004', name: 'Elena Petrova', email: 'elena@trading.ru', type: 'Real', balance: 8900.20, status: 'Active', joined: '2024-02-25', avatar: 'https://i.pravatar.cc/150?u=elena' },
-        { id: 'VR2002', name: 'David Smith', email: 'david@test.com', type: 'Demo', balance: 9500.00, status: 'Active', joined: '2024-03-01', avatar: 'https://i.pravatar.cc/150?u=david' },
-    ], []);
+const generateHistory = (base: number): number[] =>
+    Array.from({ length: 20 }, (_, i) => Math.max(0, base + (Math.random() - 0.48) * base * 0.05 * i));
 
-    const filteredUsers = useMemo(() => {
-        return users.filter(u => {
-            const matchesSearch = u.name.toLowerCase().includes(searchTerm.toLowerCase()) || u.email.toLowerCase().includes(searchTerm.toLowerCase()) || u.id.toLowerCase().includes(searchTerm.toLowerCase());
-            const matchesFilter = filterType === 'All' || u.type === filterType || u.status === filterType;
-            return matchesSearch && matchesFilter;
-        });
-    }, [searchTerm, filterType, users]);
+const MOCK_USERS: PlatformUser[] = [
+    { id: 'CR9284731', name: 'Alex Morgan', email: 'alex.morgan@email.com', avatar: 'AM', status: 'Active', type: 'Real', balance: 10451.58, country: 'United Kingdom', city: 'London', ip: '82.45.102.31', device: 'iPhone 15 Pro', browser: 'Safari 17.2', joined: 'Jan 12, 2025', lastSeen: '2 min ago', trades: 342, winRate: 68.2, isNew: false, balanceHistory: generateHistory(10000) },
+    { id: 'CR8812934', name: 'Priya Vasquez', email: 'priya.v@email.com', avatar: 'PV', status: 'Active', type: 'Real', balance: 4220.00, country: 'India', city: 'Mumbai', ip: '49.120.88.12', device: 'Samsung Galaxy S24', browser: 'Chrome 122', joined: 'Feb 03, 2025', lastSeen: '15 min ago', trades: 118, winRate: 55.1, isNew: false, balanceHistory: generateHistory(4000) },
+    { id: 'CR7729010', name: 'Kwame Asante', email: 'kwame.asante@email.com', avatar: 'KA', status: 'Active', type: 'Real', balance: 8700.30, country: 'Ghana', city: 'Accra', ip: '197.251.45.88', device: 'MacBook Pro', browser: 'Chrome 122', joined: 'Mar 04, 2026', lastSeen: 'Just now', trades: 5, winRate: 60.0, isNew: true, balanceHistory: generateHistory(8700) },
+    { id: 'VRTC9001', name: 'Sarah Lin', email: 'sarah.lin@email.com', avatar: 'SL', status: 'Active', type: 'Demo', balance: 10000.00, country: 'Singapore', city: 'Singapore', ip: '182.55.9.201', device: 'iPad Pro', browser: 'Safari 17.0', joined: 'Feb 28, 2025', lastSeen: '1 hr ago', trades: 210, winRate: 71.4, isNew: false, balanceHistory: generateHistory(10000) },
+    { id: 'CR6618822', name: 'Dmitri Volkov', email: 'dmitri.v@email.com', avatar: 'DV', status: 'Blocked', type: 'Real', balance: 120.50, country: 'Russia', city: 'Moscow', ip: '95.31.18.44', device: 'Windows PC', browser: 'Firefox 123', joined: 'Dec 20, 2024', lastSeen: '3 days ago', trades: 890, winRate: 45.6, isNew: false, balanceHistory: generateHistory(120) },
+    { id: 'CR5533891', name: 'Fatima Al-Said', email: 'fatima.s@email.com', avatar: 'FS', status: 'Pending', type: 'Real', balance: 0, country: 'UAE', city: 'Dubai', ip: '188.240.71.5', device: 'iPhone 15', browser: 'Chrome 122', joined: 'Mar 04, 2026', lastSeen: '5 min ago', trades: 0, winRate: 0, isNew: true, balanceHistory: generateHistory(0) },
+    { id: 'CR4421557', name: 'Carlos Mendez', email: 'carlos.m@email.com', avatar: 'CM', status: 'Active', type: 'Real', balance: 3140.75, country: 'Brazil', city: 'São Paulo', ip: '200.168.33.21', device: 'Android Pixel 8', browser: 'Chrome 123', joined: 'Jan 25, 2025', lastSeen: '30 min ago', trades: 174, winRate: 62.1, isNew: false, balanceHistory: generateHistory(3000) },
+    { id: 'CR3317744', name: 'Hannah Müller', email: 'hannah.m@email.com', avatar: 'HM', status: 'Active', type: 'Real', balance: 6800.00, country: 'Germany', city: 'Berlin', ip: '91.12.200.77', device: 'MacBook Air', browser: 'Safari 17.2', joined: 'Nov 08, 2024', lastSeen: '2 hr ago', trades: 430, winRate: 73.5, isNew: false, balanceHistory: generateHistory(6800) },
+];
 
-    return (
-        <div className="space-y-10 animate-in fade-in slide-in-from-bottom-8 duration-700 bg-[#0b0f19] min-h-screen p-10">
-            {/* Header Section */}
-            <div className="flex flex-col md:flex-row justify-between items-start md:items-center gap-8 mb-4">
-                <div className="relative">
-                    <div className="absolute -left-4 top-1/2 -translate-y-1/2 w-1.5 h-16 bg-brand-blue rounded-full shadow-glow-blue"></div>
-                    <h1 className="text-5xl font-black text-white tracking-tighter italic leading-none mb-2">
-                        KERNEL <span className="text-brand-blue">REGISTRY</span>
-                    </h1>
-                    <p className="text-slate-500 text-xs font-mono font-bold uppercase tracking-[0.3em] flex items-center gap-2">
-                        <span className="w-2 h-2 rounded-full bg-cyan-500 shadow-glow-cyan animate-pulse"></span>
-                        Authorized Entity Management v2.1.0
-                    </p>
-                </div>
-                <div className="flex items-center gap-4">
-                    <button className="px-8 py-4 bg-white/5 border border-white/10 rounded-2xl text-[10px] font-black uppercase tracking-[0.2em] hover:bg-white/10 transition-all flex items-center gap-3 group">
-                        <LabelPairedCirclePlusCaptionRegularIcon className="w-4 h-4 text-slate-500 group-hover:text-white" /> PROVISION NEW NODE
-                    </button>
-                    <button className="px-10 py-4 bg-gradient-to-r from-brand-blue to-cyan-500 rounded-2xl text-[10px] font-black uppercase tracking-[0.2em] text-white shadow-glow-blue hover:scale-105 active:scale-95 transition-all">
-                        EXPORT LEDGER
-                    </button>
-                </div>
+// ----------- Sparkline -----------
+const Sparkline = ({ data }: { data: number[] }) => (
+    <ResponsiveContainer width={80} height={30}>
+        <LineChart data={data.map((v, i) => ({ i, v }))}>
+            <Line type='monotone' dataKey='v' stroke={data[data.length - 1] >= data[0] ? '#10b981' : '#f43f5e'} strokeWidth={1.5} dot={false} />
+            <Tooltip contentStyle={{ display: 'none' }} />
+        </LineChart>
+    </ResponsiveContainer>
+);
+
+// ----------- User Detail Panel -----------
+const UserDetailPanel = ({ user, onClose, onAction }: { user: PlatformUser; onClose: () => void; onAction: (action: string) => void }) => (
+    <div className="user-detail-overlay" onClick={onClose}>
+        <div className="user-detail-panel" onClick={e => e.stopPropagation()}>
+            <div className="panel-header">
+                <h3>User Profile</h3>
+                <button onClick={onClose}>
+                    <X size={16} />
+                </button>
             </div>
 
-            {/* Filter & Search Bar */}
-            <div className="glass-card p-6 rounded-[2.5rem] border border-white/5 relative overflow-hidden group">
-                <div className="absolute top-0 right-0 w-64 h-64 bg-brand-blue/5 blur-[80px] -mr-32 -mt-32 pointer-events-none"></div>
-                
-                <div className="flex flex-col lg:flex-row gap-6 justify-between items-center relative z-10">
-                    <div className="flex flex-col sm:flex-row gap-4 w-full lg:w-auto flex-1">
-                        <div className="relative flex-1 max-w-2xl group/input">
-                            <input
-                                type="text"
-                                placeholder="IDENTIFY ENTITY VIA NAME, URN OR CLUSTER ID..."
-                                value={searchTerm}
-                                onChange={(e) => setSearchTerm(e.target.value)}
-                                className="w-full bg-white/5 border border-white/10 group-hover/input:border-white/20 focus:border-brand-blue/50 rounded-2xl py-4 pl-14 pr-6 text-[10px] font-black tracking-[0.2em] text-white placeholder:text-slate-600 outline-none transition-all font-mono"
-                            />
-                            <LabelPairedMagnifyingGlassPlusCaptionRegularIcon className="absolute left-5 top-1/2 -translate-y-1/2 w-5 h-5 text-slate-500 group-hover/input:text-brand-blue transition-colors" />
-                        </div>
-                        
-                        <div className="relative min-w-[200px] group/select">
-                            <select 
-                                value={filterType}
-                                onChange={(e) => setFilterType(e.target.value)}
-                                className="w-full appearance-none bg-white/5 border border-white/10 group-hover/select:border-white/20 rounded-2xl py-4 px-6 text-[10px] font-black tracking-[0.2em] text-white outline-none transition-all font-mono uppercase"
-                            >
-                                <option value="All">All Classifications</option>
-                                <option value="Real">Real Entities</option>
-                                <option value="Demo">Simulation Clusters</option>
-                                <option value="Active">Operational: Active</option>
-                                <option value="Suspended">Operational: Suspended</option>
-                            </select>
-                            <LabelPairedArrowDownCaptionRegularIcon className="absolute right-5 top-1/2 -translate-y-1/2 w-4 h-4 text-slate-500 pointer-events-none" />
-                        </div>
+            <div className="panel-content">
+                {/* Identity */}
+                <div className="identity-section">
+                    <div className="panel-avatar">{user.avatar}</div>
+                    <div className="identity-info">
+                        <h4>{user.name}</h4>
+                        <p className="email">{user.email}</p>
+                        <p className="account-id">{user.id}</p>
                     </div>
                 </div>
+
+                {/* Status Badge */}
+                <div className="badge-row">
+                    <span className={`panel-badge ${user.status}`}>{user.status}</span>
+                    <span className={`panel-badge type-${user.type.toLowerCase()}`}>{user.type}</span>
+                    {user.isNew && <span className="panel-badge is-new">New Today</span>}
+                </div>
+
+                {/* Info Grid */}
+                <div className="info-grid">
+                    {[
+                        { icon: MapPin, label: 'Location', value: `${user.city}, ${user.country}` },
+                        { icon: Globe, label: 'IP Address', value: user.ip },
+                        { icon: Smartphone, label: 'Device', value: user.device },
+                        { icon: Globe, label: 'Browser', value: user.browser },
+                        { icon: Clock, label: 'Joined', value: user.joined },
+                        { icon: Clock, label: 'Last Seen', value: user.lastSeen },
+                    ].map(({ icon: Icon, label, value }) => (
+                        <div key={label} className="info-row">
+                            <Icon size={13} className="info-icon" />
+                            <span className="info-label">{label}</span>
+                            <span className="info-value">{value}</span>
+                        </div>
+                    ))}
+                </div>
+
+                {/* Balance History Sparkline */}
+                <div className="balance-card">
+                    <div className="balance-header">
+                        <div>
+                            <p className="balance-title">Balance History (20 pts)</p>
+                            <p className="balance-value">${user.balance.toLocaleString(undefined, { minimumFractionDigits: 2 })}</p>
+                        </div>
+                        <div>
+                            {user.balanceHistory[user.balanceHistory.length - 1] >= user.balanceHistory[0]
+                                ? <TrendingUp size={16} className='text-emerald-400' />
+                                : <TrendingDown size={16} className='text-rose-400' />}
+                        </div>
+                    </div>
+                    <ResponsiveContainer width='100%' height={60}>
+                        <LineChart data={user.balanceHistory.map((v, i) => ({ i, v }))}>
+                            <Line type='monotone' dataKey='v' stroke={user.balanceHistory[user.balanceHistory.length - 1] >= user.balanceHistory[0] ? '#10b981' : '#f43f5e'} strokeWidth={2} dot={false} />
+                        </LineChart>
+                    </ResponsiveContainer>
+                </div>
+
+                {/* Trading Stats */}
+                <div className="stats-grid">
+                    <div className="stat-box">
+                        <p className="stat-label">Total Trades</p>
+                        <p className="stat-val">{user.trades}</p>
+                    </div>
+                    <div className="stat-box">
+                        <p className="stat-label">Win Rate</p>
+                        <p className={`stat-val ${user.winRate >= 60 ? 'high' : user.winRate >= 50 ? 'mid' : 'low'}`}>{user.winRate.toFixed(1)}%</p>
+                    </div>
+                </div>
+
+                {/* Admin Controls */}
+                <div className="admin-controls">
+                    <p className="controls-title">Admin Controls</p>
+                    <button onClick={() => onAction('whitelist')} className="control-btn whitelist">
+                        <ShieldCheck size={14} /> Whitelist Account
+                    </button>
+                    <button onClick={() => onAction('blacklist')} className="control-btn blacklist">
+                        <AlertTriangle size={14} /> Blacklist Account
+                    </button>
+                    <button onClick={() => onAction('block')} className="control-btn block">
+                        <ShieldX size={14} /> Block Account
+                    </button>
+                </div>
+            </div>
+        </div>
+    </div>
+);
+
+// ----------- Main Users Page -----------
+type UserFilter = 'All' | 'New' | 'Blocked' | 'Real' | 'Demo';
+
+const AdminUsers = () => {
+    const [search, setSearch] = useState('');
+    const [filter, setFilter] = useState<UserFilter>('All');
+    const [selected, setSelected] = useState<PlatformUser | null>(null);
+
+    const filtered = useMemo(() => MOCK_USERS.filter(u => {
+        const matchesSearch = u.name.toLowerCase().includes(search.toLowerCase()) ||
+            u.email.toLowerCase().includes(search.toLowerCase()) ||
+            u.id.toLowerCase().includes(search.toLowerCase());
+        const matchesFilter = filter === 'All' ? true :
+            filter === 'New' ? u.isNew :
+            filter === 'Blocked' ? u.status === 'Blocked' :
+            u.type === filter;
+        return matchesSearch && matchesFilter;
+    }), [search, filter]);
+
+    const newCount = MOCK_USERS.filter(u => u.isNew).length;
+    const blockedCount = MOCK_USERS.filter(u => u.status === 'Blocked').length;
+
+    const handleAction = (action: string) => {
+        console.log(`Admin action: ${action} on ${selected?.id}`);
+        setSelected(null);
+    };
+
+    return (
+        <div className="admin-users-page">
+            {/* Header */}
+            <div className="users-header">
+                <h1 className="main-title">
+                    USER <span className="highlight">MANAGEMENT</span>
+                </h1>
+                <p className="subtitle">
+                    Platform kernel registry • {MOCK_USERS.length} registered nodes
+                </p>
             </div>
 
-            {/* Users Table Ledger */}
-            <div className="glass-card rounded-[3.5rem] border border-white/5 relative overflow-hidden shadow-2xl">
-                <div className="absolute top-0 left-0 w-full h-px bg-gradient-to-r from-transparent via-brand-blue/50 to-transparent"></div>
-                
-                <div className="overflow-x-auto p-1">
-                    <table className="w-full text-left">
+            {/* Summary Badges */}
+            <div className="filter-badges">
+                {[
+                    { key: 'All', label: 'All Users', count: MOCK_USERS.length, color: 'blue' },
+                    { key: 'New', label: 'New Today', count: newCount, color: 'emerald' },
+                    { key: 'Blocked', label: 'Blocked', count: blockedCount, color: 'rose' },
+                    { key: 'Real', label: 'Real Accounts', count: MOCK_USERS.filter(u => u.type === 'Real').length, color: 'purple' },
+                    { key: 'Demo', label: 'Demo Accounts', count: MOCK_USERS.filter(u => u.type === 'Demo').length, color: 'cyan' },
+                ].map(({ key, label, count, color }) => (
+                    <button
+                        key={key}
+                        onClick={() => setFilter(key as UserFilter)}
+                        className={`filter-btn ${filter === key ? `active-${color}` : ''}`}
+                    >
+                        {label}
+                        <span className="count-badge">{count}</span>
+                    </button>
+                ))}
+            </div>
+
+            {/* Search */}
+            <div className="search-bar">
+                <Search size={14} className="search-icon" />
+                <input
+                    placeholder="Search by name, email or account ID…"
+                    value={search}
+                    onChange={e => setSearch(e.target.value)}
+                />
+            </div>
+
+            {/* Table */}
+            <div className="table-container">
+                <div className="table-scroll">
+                    <table>
                         <thead>
-                            <tr className="border-b border-white/5">
-                                <th className="px-8 py-8 text-[10px] font-black uppercase tracking-[0.4em] text-slate-600 italic">Entity ID</th>
-                                <th className="px-8 py-8 text-[10px] font-black uppercase tracking-[0.4em] text-slate-600 italic">Authentication Profile</th>
-                                <th className="px-8 py-8 text-[10px] font-black uppercase tracking-[0.4em] text-slate-600 italic">Classification</th>
-                                <th className="px-8 py-8 text-[10px] font-black uppercase tracking-[0.4em] text-slate-600 italic text-right">Liquidity Vector</th>
-                                <th className="px-8 py-8 text-[10px] font-black uppercase tracking-[0.4em] text-slate-600 italic text-center">Lifecycle Status</th>
-                                <th className="px-8 py-8 text-[10px] font-black uppercase tracking-[0.4em] text-slate-600 italic">Temporal Stamp</th>
-                                <th className="px-8 py-8 text-[10px] font-black uppercase tracking-[0.4em] text-slate-600 italic text-center">Node Actions</th>
+                            <tr>
+                                {['User', 'Account', 'Balance', 'History', 'Trades', 'Win %', 'Status', 'Last Seen', ''].map(h => (
+                                    <th key={h}>{h}</th>
+                                ))}
                             </tr>
                         </thead>
-                        <tbody className="divide-y divide-white/5">
-                            {filteredUsers.map((user) => (
-                                <tr key={user.id} className="group hover:bg-white/[0.03] transition-all duration-300">
-                                    <td className="px-8 py-7">
-                                        <p className="text-slate-400 text-xs font-black font-mono tracking-tighter italic">{user.id}</p>
-                                    </td>
-                                    <td className="px-8 py-7">
-                                        <div className="flex items-center gap-5">
-                                            <div className="w-12 h-12 rounded-2xl border-2 border-white/10 overflow-hidden shadow-2xl group-hover:scale-110 transition-transform duration-500 p-0.5 bg-gradient-to-br from-brand-blue/20 to-transparent">
-                                                <img src={user.avatar} alt="" className="w-full h-full object-cover rounded-[0.8rem]" />
-                                            </div>
-                                            <div>
-                                                <p className="text-white text-base font-black italic tracking-tighter mb-0.5 group-hover:text-brand-blue transition-colors">{user.name}</p>
-                                                <p className="text-slate-600 text-[10px] font-black font-mono tracking-widest uppercase opacity-70">{user.email}</p>
+                        <tbody>
+                            {filtered.map(user => (
+                                <tr key={user.id} onClick={() => setSelected(user)}>
+                                    <td>
+                                        <div className="user-cell">
+                                            <div className="avatar">{user.avatar}</div>
+                                            <div className="user-info">
+                                                <div className="name-row">
+                                                    <p className="name">{user.name}</p>
+                                                    {user.isNew && <span className="new-dot" />}
+                                                </div>
+                                                <p className="email">{user.email}</p>
                                             </div>
                                         </div>
                                     </td>
-                                    <td className="px-8 py-7">
-                                        <span className={classNames(
-                                            "px-4 py-1.5 rounded-xl text-[9px] font-black uppercase tracking-widest border italic shadow-lg",
-                                            user.type === 'Real' ? "bg-brand-blue/10 text-brand-blue border-brand-blue/20 shadow-glow-blue/5" : "bg-purple-500/10 text-purple-400 border-purple-500/20 shadow-glow-purple/5"
-                                        )}>
-                                            {user.type === 'Real' ? 'CORE ASSET' : 'SIM CLUSTER'}
-                                        </span>
-                                    </td>
-                                    <td className="px-8 py-7 text-right">
-                                        <p className="text-white text-lg font-black font-mono tracking-tighter italic leading-none mb-1">${user.balance.toLocaleString(undefined, { minimumFractionDigits: 2 })}</p>
-                                        <p className="text-[8px] text-slate-600 font-black uppercase tracking-[0.2em]">USD Equivalent</p>
-                                    </td>
-                                    <td className="px-8 py-7 text-center">
-                                        <div className={classNames(
-                                            "inline-flex items-center gap-3 px-5 py-2 rounded-2xl text-[9px] font-black uppercase tracking-[0.3em] italic border shadow-xl transition-all",
-                                            user.status === 'Active' ? "bg-emerald-500/10 text-emerald-400 border-emerald-500/10 shadow-glow-emerald/5" : "bg-rose-500/10 text-rose-400 border-rose-500/10 shadow-glow-rose/5"
-                                        )}>
-                                            <span className={classNames("w-2 h-2 rounded-full", user.status === 'Active' ? "bg-emerald-500 shadow-glow-emerald" : "bg-rose-500 shadow-glow-rose")}></span>
-                                            {user.status}
+                                    <td>
+                                        <div className="account-cell">
+                                            <p className="account-id">{user.id}</p>
+                                            <span className={`account-type ${user.type.toLowerCase()}`}>{user.type}</span>
                                         </div>
                                     </td>
-                                    <td className="px-8 py-7">
-                                        <p className="text-slate-400 text-[11px] font-black font-mono italic tracking-tight">{user.joined}</p>
-                                        <p className="text-slate-700 text-[8px] font-black uppercase tracking-[0.1em]">Registered Offset</p>
+                                    <td>
+                                        <p className="balance-cell">${user.balance.toLocaleString(undefined, { minimumFractionDigits: 2 })}</p>
                                     </td>
-                                    <td className="px-8 py-7">
-                                        <div className="flex items-center justify-center gap-3">
-                                            {[
-                                                { icon: LabelPairedPenCaptionRegularIcon, color: 'blue', label: 'E-CR' },
-                                                { icon: LabelPairedCircleUserSlashCaptionRegularIcon, color: 'rose', label: 'S-CR' },
-                                                { icon: LabelPairedMoneyBillCaptionRegularIcon, color: 'emerald', label: 'F-CR' }
-                                            ].map((action, i) => (
-                                                <button key={i} className={classNames(
-                                                    "w-10 h-10 rounded-xl flex items-center justify-center border transition-all duration-300 group/btn",
-                                                    `bg-white/5 border-white/5 hover:bg-${action.color}-500/10 hover:border-${action.color}-500/20 hover:text-${action.color}-400`
-                                                )}>
-                                                    <action.icon className="w-5 h-5 opacity-40 group-hover/btn:opacity-100 group-hover/btn:scale-110 transition-all font-black" />
-                                                </button>
-                                            ))}
-                                        </div>
+                                    <td>
+                                        <Sparkline data={user.balanceHistory} />
+                                    </td>
+                                    <td>
+                                        <p className="trades-cell">{user.trades}</p>
+                                    </td>
+                                    <td>
+                                        <p className={`winrate-cell ${user.winRate >= 60 ? 'high' : user.winRate >= 50 ? 'mid' : user.winRate === 0 ? 'none' : 'low'}`}>
+                                            {user.winRate > 0 ? `${user.winRate}%` : '—'}
+                                        </p>
+                                    </td>
+                                    <td>
+                                        <span className={`status-badge ${user.status}`}>{user.status}</span>
+                                    </td>
+                                    <td>
+                                        <p className="last-seen">{user.lastSeen}</p>
+                                    </td>
+                                    <td>
+                                        <ChevronRight size={14} className="action-cell" />
                                     </td>
                                 </tr>
                             ))}
                         </tbody>
                     </table>
                 </div>
-                
-                {/* Empty State Overhaul */}
-                {filteredUsers.length === 0 && (
-                    <div className="p-32 text-center relative overflow-hidden">
-                        <div className="absolute inset-0 bg-brand-blue/2 blur-[100px] pointer-events-none"></div>
-                        <div className="relative z-10">
-                            <LabelPairedMagnifyingGlassPlusCaptionRegularIcon className="w-20 h-20 text-slate-800 mx-auto mb-6 opacity-30 animate-pulse" />
-                            <h3 className="text-3xl font-black text-white mb-2 italic tracking-tighter uppercase">No Entity Matches Detected</h3>
-                            <p className="text-slate-600 text-xs font-mono font-bold uppercase tracking-[0.4em]">Adjust identity filters or cluster parameters</p>
-                        </div>
+                {filtered.length === 0 && (
+                    <div className="empty-state">
+                        <User size={32} className="empty-icon" />
+                        <p>No users match your search</p>
                     </div>
                 )}
-
-                {/* Footer Ledgers */}
-                <div className="px-12 py-8 bg-white/2 border-t border-white/5 flex items-center justify-between">
-                    <div className="flex items-center gap-6">
-                        <div className="flex items-center gap-2">
-                            <div className="w-2 h-2 rounded-full bg-brand-blue shadow-glow-blue"></div>
-                            <p className="text-[10px] font-black text-slate-500 uppercase tracking-[0.3em] font-mono">
-                                {filteredUsers.length} NODES IDENTIFIED
-                            </p>
-                        </div>
-                        <div className="h-4 w-px bg-white/5"></div>
-                        <p className="text-[9px] font-black text-slate-700 uppercase tracking-[0.2em] italic">
-                            Cluster Sector: 0x88FE2
-                        </p>
-                    </div>
-                    <div className="flex gap-4">
-                        <button className="px-8 py-3 rounded-2xl bg-white/5 text-slate-500 text-[10px] font-black uppercase tracking-[0.3em] hover:bg-white/10 hover:text-white transition-all border border-white/5 font-mono italic">
-                            &lt; PREV_NODE
-                        </button>
-                        <button className="px-8 py-3 rounded-2xl bg-white/10 text-white text-[10px] font-black uppercase tracking-[0.3em] hover:bg-white/20 transition-all border border-white/10 font-mono shadow-2xl italic">
-                            NEXT_NODE &gt;
-                        </button>
-                    </div>
-                </div>
             </div>
+
+            {/* Detail Panel */}
+            {selected && <UserDetailPanel user={selected} onClose={() => setSelected(null)} onAction={handleAction} />}
         </div>
     );
-});
+};
 
-export default UsersManagement;
+export default AdminUsers;

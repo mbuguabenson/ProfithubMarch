@@ -19,6 +19,8 @@ import AccountsInfoLoader from './account-info-loader';
 import AccountSwitcher from './account-switcher';
 import MenuItems from './menu-items';
 import MobileMenu from './mobile-menu';
+import { User } from 'lucide-react';
+import { useNavigate } from 'react-router-dom';
 import './header.scss';
 
 type TAppHeaderProps = {
@@ -29,6 +31,7 @@ const AppHeader = observer(({ isAuthenticating }: TAppHeaderProps) => {
     const { isDesktop } = useDevice();
     const { isAuthorizing, activeLoginid } = useApiBase();
     const { client } = useStore() ?? {};
+    const navigate = useNavigate();
 
     const { data: activeAccount } = useActiveAccount({ allBalanceData: client?.all_accounts_balance });
     const { accounts, getCurrency, is_virtual } = client ?? {};
@@ -173,6 +176,27 @@ const AppHeader = observer(({ isAuthenticating }: TAppHeaderProps) => {
                 >
                     <LegacyWhatsappIcon className='app-header__whatsapp-icon' />
                 </a>
+                
+                {/* Account Hub Link */}
+                <button 
+                    onClick={() => navigate('/account')}
+                    className='app-header__account-link'
+                    style={{
+                        background: 'transparent',
+                        border: 'none',
+                        cursor: 'pointer',
+                        padding: '8px',
+                        display: 'flex',
+                        alignItems: 'center',
+                        justifyContent: 'center',
+                        color: 'var(--text-general)',
+                        transition: 'color 0.2s',
+                    }}
+                    title='Account Hub'
+                >
+                    <User size={20} />
+                </button>
+
                 {!isDesktop && <PWAInstallButton variant='primary' size='medium' />}
                 {renderAccountSection()}
             </Wrapper>

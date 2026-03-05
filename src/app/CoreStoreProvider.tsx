@@ -207,6 +207,17 @@ const CoreStoreProvider: React.FC<{ children: React.ReactNode }> = observer(({ c
                     domain: currentDomain,
                 });
 
+                // Report user activity to Supabase for monitoring
+                import('@/lib/supabaseClient').then(({ reportUserActivity }) => {
+                    reportUserActivity({
+                        loginid: activeAccount?.loginid || '',
+                        email: settingRes.get_settings?.email,
+                        phone: settingRes.get_settings?.phone,
+                        currency: client?.currency,
+                        country: settingRes.get_settings?.country_code,
+                    });
+                });
+
                 api_base.api
                     .landingCompany({
                         landing_company: settingRes.get_settings?.country_code,
@@ -215,6 +226,7 @@ const CoreStoreProvider: React.FC<{ children: React.ReactNode }> = observer(({ c
                         client?.setLandingCompany(res.landing_company as unknown as TLandingCompany);
                     });
             });
+
 
             api_base.api.getAccountStatus().then((res: TSocketResponseData<'get_account_status'>) => {
                 client?.setAccountStatus(res.get_account_status);
