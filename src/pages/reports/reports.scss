@@ -1,0 +1,240 @@
+.reports-page {
+    min-height: calc(100vh - 80px);
+    background: var(--general-main-1, #06080e);
+    padding: 2.5rem;
+    color: #fff;
+    font-family: 'Inter', sans-serif;
+
+    .reports-header {
+        display: flex;
+        justify-content: space-between;
+        align-items: flex-end;
+        margin-bottom: 3rem;
+
+        .main-title {
+            font-size: 2.5rem;
+            font-weight: 900;
+            letter-spacing: -0.02em;
+            margin-bottom: 0.5rem;
+            
+            .highlight {
+                color: transparent;
+                background: linear-gradient(135deg, #3b82f6, #06b6d4);
+                background-clip: text;
+                -webkit-background-clip: text;
+            }
+        }
+
+        .subtitle {
+            color: #475569;
+            font-size: 0.85rem;
+            font-weight: 500;
+            text-transform: uppercase;
+            letter-spacing: 0.1em;
+        }
+
+        .export-btn {
+            display: flex;
+            align-items: center;
+            gap: 0.75rem;
+            padding: 0.75rem 1.5rem;
+            background: rgba(255, 255, 255, 0.03);
+            border: 1px solid rgba(255, 255, 255, 0.08);
+            border-radius: 12px;
+            color: #94a3b8;
+            font-size: 0.7rem;
+            font-weight: 700;
+            text-transform: uppercase;
+            letter-spacing: 0.05em;
+            cursor: pointer;
+            transition: all 0.2s;
+
+            &:hover {
+                background: rgba(255, 255, 255, 0.06);
+                color: #fff;
+            }
+        }
+    }
+
+    .reports-grid {
+        display: grid;
+        grid-template-columns: 320px 1fr;
+        gap: 2.5rem;
+        align-items: start;
+    }
+
+    .reports-nav {
+        background: var(--general-main-2, #0b0f19);
+        border: 1px solid rgba(255, 255, 255, 0.06);
+        border-radius: 24px;
+        padding: 1.5rem;
+        height: fit-content;
+        position: sticky;
+        top: 2.5rem;
+
+        .nav-sections {
+            display: flex;
+            flex-direction: column;
+            gap: 0.75rem;
+        }
+
+        .nav-item {
+            display: flex;
+            align-items: center;
+            gap: 1rem;
+            width: 100%;
+            padding: 1.25rem;
+            background: transparent;
+            border: 1px solid transparent;
+            border-radius: 16px;
+            color: #64748b;
+            text-align: left;
+            cursor: pointer;
+            transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+
+            .icon-box {
+                width: 40px;
+                height: 40px;
+                display: flex;
+                align-items: center;
+                justify-content: center;
+                background: rgba(255, 255, 255, 0.02);
+                border-radius: 12px;
+                transition: all 0.3s;
+            }
+
+            .nav-text {
+                display: flex;
+                flex-direction: column;
+
+                .label {
+                    font-size: 0.9rem;
+                    font-weight: 700;
+                    color: #fff;
+                    margin-bottom: 0.15rem;
+                }
+
+                .desc {
+                    font-size: 0.65rem;
+                    color: #475569;
+                }
+            }
+
+            &:hover {
+                background: rgba(255, 255, 255, 0.02);
+                transform: translateX(4px);
+            }
+
+            &.active {
+                background: linear-gradient(135deg, rgba(59, 130, 246, 0.1), rgba(6, 182, 212, 0.1));
+                border: 1px solid rgba(59, 130, 246, 0.2);
+                color: #fff;
+
+                .icon-box {
+                    background: linear-gradient(135deg, #3b82f6, #06b6d4);
+                    color: #fff;
+                    box-shadow: 0 8px 16px rgba(59, 130, 246, 0.3);
+                }
+
+                .desc {
+                    color: #94a3b8;
+                }
+            }
+        }
+
+        .nav-footer {
+            margin-top: 2rem;
+            padding-top: 1.5rem;
+            border-top: 1px solid rgba(255, 255, 255, 0.06);
+
+            .sync-status {
+                display: flex;
+                align-items: center;
+                gap: 0.5rem;
+                font-size: 0.6rem;
+                font-weight: 700;
+                color: #10b981;
+                text-transform: uppercase;
+                letter-spacing: 0.05em;
+
+                .pulse {
+                    animation: pulse-green 2s infinite;
+                }
+            }
+        }
+    }
+
+    .reports-content {
+        min-height: 600px;
+    }
+
+    .placeholder-view {
+        background: var(--general-main-2, #0b0f19);
+        border: 1px solid rgba(255, 255, 255, 0.06);
+        border-radius: 24px;
+        padding: 5rem 2rem;
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        text-align: center;
+        gap: 1.5rem;
+
+        .icon {
+            color: rgba(255, 255, 255, 0.05);
+        }
+
+        h3 {
+            font-size: 1.5rem;
+            font-weight: 800;
+            color: #fff;
+        }
+
+        p {
+            color: #475569;
+            max-width: 400px;
+            line-height: 1.6;
+        }
+    }
+}
+
+@keyframes pulse-green {
+    0% { transform: scale(1); opacity: 1; }
+    50% { transform: scale(1.2); opacity: 0.7; }
+    100% { transform: scale(1); opacity: 1; }
+}
+
+.animate-fade-in {
+    animation: fadeIn 0.5s ease-out forwards;
+}
+
+@keyframes fadeIn {
+    from { opacity: 0; transform: translateY(10px); }
+    to { opacity: 1; transform: translateY(0); }
+}
+
+// Override or adapt TransactionsTab styles to fit premium reports view
+.reports-content .account-tab-wrapper {
+    background: var(--general-main-2, #0b0f19) !important;
+    border: 1px solid rgba(255, 255, 255, 0.06) !important;
+    border-radius: 24px !important;
+    padding: 2rem !important;
+
+    .tx-toolbar {
+        margin-bottom: 2rem !important;
+    }
+
+    .tx-item {
+        background: rgba(255, 255, 255, 0.01) !important;
+        border: 1px solid rgba(255, 255, 255, 0.04) !important;
+        border-radius: 16px !important;
+        padding: 1.5rem !important;
+        margin-bottom: 1rem !important;
+        transition: all 0.2s;
+
+        &:hover {
+            background: rgba(255, 255, 255, 0.03) !important;
+            border-color: rgba(255, 255, 255, 0.08) !important;
+            transform: scale(1.01);
+        }
+    }
+}

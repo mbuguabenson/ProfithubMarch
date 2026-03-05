@@ -1,14 +1,13 @@
 import { initSurvicate } from '../public-path';
-import { lazy, Suspense } from 'react';
-import React from 'react';
-import { createBrowserRouter, createRoutesFromElements, Route, RouterProvider, Outlet } from 'react-router-dom';
+import React, { lazy, Suspense } from 'react';
+import { createBrowserRouter, createRoutesFromElements, Outlet, Route, RouterProvider } from 'react-router-dom';
 import InitialLoader from '@/components/loader/initial-loader';
 import RoutePromptDialog from '@/components/route-prompt-dialog';
 import { crypto_currencies_display_order, fiat_currencies_display_order } from '@/components/shared';
 import { StoreProvider } from '@/hooks/useStore';
+import AdminAuthWrapper from '@/pages/admin/layout/AdminAuthWrapper';
 import CallbackPage from '@/pages/callback';
 import Endpoint from '@/pages/endpoint';
-import AdminAuthWrapper from '@/pages/admin/layout/AdminAuthWrapper';
 import { TAuthData } from '@/types/api-types';
 import { initializeI18n, TranslationProvider } from '@deriv-com/translations';
 import CoreStoreProvider from './CoreStoreProvider';
@@ -18,6 +17,7 @@ const Layout = lazy(() => import('../components/layout'));
 const AppRoot = lazy(() => import('./app-root'));
 const AdminLayout = lazy(() => import('../pages/admin/layout/admin-layout'));
 const AccountDashboard = lazy(() => import('../pages/account-dashboard'));
+const Reports = lazy(() => import('../pages/reports'));
 
 const { TRANSLATIONS_CDN_URL, R2_PROJECT_NAME, CROWDIN_BRANCH_NAME } = process.env;
 // Only use CDN URL if all required variables are present and not empty
@@ -62,6 +62,9 @@ const router = createBrowserRouter(
                 }
             />
             <Route path='account' element={<AccountDashboard />} />
+            <Route path='reports' element={<Reports />} />
+            <Route path='statement' element={<Reports />} />
+            <Route path='profit' element={<Reports />} />
             <Route element={<Layout />}>
                 {/* All child routes will be passed as children to Layout */}
                 <Route index element={<AppRoot />} />
