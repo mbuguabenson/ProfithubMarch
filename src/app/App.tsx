@@ -1,6 +1,7 @@
 import { initSurvicate } from '../public-path';
 import React, { lazy, Suspense } from 'react';
 import { createBrowserRouter, createRoutesFromElements, Outlet, Route, RouterProvider } from 'react-router-dom';
+import RouteErrorBoundary from '@/components/error-boundary/RouteErrorBoundary';
 import InitialLoader from '@/components/loader/initial-loader';
 import RoutePromptDialog from '@/components/route-prompt-dialog';
 import { crypto_currencies_display_order, fiat_currencies_display_order } from '@/components/shared';
@@ -52,6 +53,7 @@ const router = createBrowserRouter(
                     </TranslationProvider>
                 </SuspenseWrapper>
             }
+            errorElement={<RouteErrorBoundary />}
         >
             <Route
                 path='admin/*'
@@ -60,16 +62,17 @@ const router = createBrowserRouter(
                         <AdminLayout />
                     </AdminAuthWrapper>
                 }
+                errorElement={<RouteErrorBoundary />}
             />
-            <Route path='account' element={<AccountDashboard />} />
-            <Route path='reports' element={<Reports />} />
-            <Route path='statement' element={<Reports />} />
-            <Route path='profit' element={<Reports />} />
-            <Route element={<Layout />}>
+            <Route path='account' element={<AccountDashboard />} errorElement={<RouteErrorBoundary />} />
+            <Route path='reports' element={<Reports />} errorElement={<RouteErrorBoundary />} />
+            <Route path='statement' element={<Reports />} errorElement={<RouteErrorBoundary />} />
+            <Route path='profit' element={<Reports />} errorElement={<RouteErrorBoundary />} />
+            <Route element={<Layout />} errorElement={<RouteErrorBoundary />}>
                 {/* All child routes will be passed as children to Layout */}
-                <Route index element={<AppRoot />} />
-                <Route path='endpoint' element={<Endpoint />} />
-                <Route path='callback' element={<CallbackPage />} />
+                <Route index element={<AppRoot />} errorElement={<RouteErrorBoundary />} />
+                <Route path='endpoint' element={<Endpoint />} errorElement={<RouteErrorBoundary />} />
+                <Route path='callback' element={<CallbackPage />} errorElement={<RouteErrorBoundary />} />
             </Route>
         </Route>
     ),
